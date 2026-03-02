@@ -196,17 +196,20 @@ body {
   display: grid;
   grid-template-columns: repeat(7,1fr);
   border-top: 1px solid #f0ebe7;
-  gap: 1px;
+  gap: 2px;
   background: #f0ebe7;
+  padding: 2px;
 }
-/* 日期框改为矩形 */
+/* 日期框：圆角矩形 + 5:3比例 */
 .day {
-  aspect-ratio: 1/1.1;
-  padding: 6px;
+  width: 100%;
+  aspect-ratio: 5/3; /* 核心：宽高比5:3 */
+  padding: 8px 6px;
   background: #fff;
   position: relative;
   cursor: pointer;
-  border-radius: 0; /* 取消圆角，改为矩形 */
+  border-radius: 8px; /* 圆角矩形 */
+  overflow: hidden;
 }
 /* 选中状态样式 */
 .day.selected {
@@ -237,13 +240,18 @@ body {
 /* 待办事项 */
 .todo {
   position: absolute;
-  top: 30px;
+  top: 28px;
   left: 6px;
   right: 6px;
+  bottom: 4px;
   font-size: 15px;
   line-height: 1.3;
   color: #444;
   word-break: break-all;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 最多显示2行 */
+  -webkit-box-orient: vertical;
 }
 
 /* 颜色面板 3行3列 */
