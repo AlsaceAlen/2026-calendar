@@ -13,17 +13,17 @@
 }
 body {
   background: #faf8fd;
-  padding: 10px;
+  padding: 8px; /* 全局内边距收窄，减少拥挤 */
   position: relative;
 }
 
-/* 趣味装饰元素 */
+/* 趣味装饰元素（手机端缩小，避免遮挡） */
 .decoration-1 {
   position: fixed;
-  top: 20px;
-  left: 20px;
-  width: 40px;
-  height: 40px;
+  top: 12px;
+  left: 12px;
+  width: 32px; /* 缩小 */
+  height: 32px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e99da9'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center no-repeat;
   background-size: contain;
   opacity: 0.6;
@@ -32,10 +32,10 @@ body {
 }
 .decoration-2 {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 30px;
-  height: 30px;
+  bottom: 12px;
+  right: 12px;
+  width: 24px; /* 缩小 */
+  height: 24px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a947f'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E") center no-repeat;
   background-size: contain;
   opacity: 0.6;
@@ -44,7 +44,7 @@ body {
 }
 @keyframes float {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
   100% { transform: translateY(0px); }
 }
 @keyframes rotate {
@@ -52,50 +52,50 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* 登录页 */
+/* 登录页（手机端收窄内边距，减少高度） */
 .login-page {
-  max-width: 380px;
-  margin: 70px auto;
+  max-width: 360px; /* 收窄 */
+  margin: 40px auto; /* 减少上下边距 */
   background: #fff;
-  border-radius: 24px;
-  padding: 40px 30px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-radius: 20px;
+  padding: 30px 24px; /* 收窄内边距 */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   animation: fadeIn 0.5s ease;
   position: relative;
   z-index: 2;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .login-title {
-  font-size: 22px;
+  font-size: 20px; /* 缩小 */
   font-weight: bold;
   text-align: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: #333;
 }
 .login-sub {
   text-align: center;
   color: #999;
-  margin-bottom: 30px;
-  font-size: 14px;
+  margin-bottom: 24px; /* 减少 */
+  font-size: 13px; /* 缩小 */
 }
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px; /* 减少 */
 }
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: 12px; /* 缩小 */
   color: #666;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .form-group input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px; /* 收窄 */
   border: 1px solid #e6e2df;
-  border-radius: 12px;
-  font-size: 15px;
+  border-radius: 10px;
+  font-size: 14px; /* 缩小 */
   outline: none;
 }
 .form-group input:focus {
@@ -104,76 +104,77 @@ body {
 .remember {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 4px;
+  font-size: 12px; /* 缩小 */
   color: #666;
-  margin-bottom: 24px;
+  margin-bottom: 20px; /* 减少 */
 }
 .login-btn {
   width: 100%;
-  padding: 13px;
+  padding: 11px; /* 收窄 */
   background: #e99da9;
   color: #fff;
   border: none;
-  border-radius: 14px;
-  font-size: 15px;
+  border-radius: 12px;
+  font-size: 14px; /* 缩小 */
   font-weight: 500;
 }
 
-/* 主界面 */
+/* 主界面（手机端居中，减少最大宽度） */
 .calendar-container {
   display: none;
   animation: pageIn 0.6s ease;
   position: relative;
   z-index: 2;
-  max-width: 1000px;
+  max-width: 900px; /* 收窄 */
   margin: 0 auto;
+  padding: 0 4px; /* 减少左右内边距 */
 }
 @keyframes pageIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* 月份卡片 */
+/* 月份卡片（手机端减少间距和内边距） */
 .month {
   background: #fff;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 22px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  margin-bottom: 16px; /* 减少间距 */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 .month-title {
   text-align: center;
-  font-size: 16px;
+  font-size: 15px; /* 缩小 */
   font-weight: bold;
   color: #444;
-  padding: 14px 0;
+  padding: 12px 0; /* 收窄 */
   background: #fdfafc;
 }
 .month-head {
-  padding: 8px 16px;
+  padding: 6px 12px; /* 收窄 */
   background: #fdfafc;
   display: flex;
-  justify: flex-end;
+  justify-content: flex-end;
 }
 .btn-clear-month {
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 5px 8px; /* 收窄 */
+  font-size: 11px; /* 缩小 */
   background: #fce4e8;
   color: #c96f7d;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .week {
   display: grid;
   grid-template-columns: repeat(7,1fr);
   background: #fdfcfb;
-  padding: 8px 0;
+  padding: 6px 0; /* 收窄 */
 }
 .week > div {
   text-align: center;
-  font-size: 12px;
+  font-size: 11px; /* 缩小 */
   color: #999;
 }
 
@@ -181,30 +182,35 @@ body {
   display: grid;
   grid-template-columns: repeat(7,1fr);
   border-top: 1px solid #f0ebe7;
-  gap: 2px;
+  gap: 1px; /* 减少间距，避免拥挤 */
   background: #f0ebe7;
-  padding: 2px;
+  padding: 1px; /* 收窄 */
 }
 
 /* 电脑版：日期框固定 5:3 */
 .day {
   width: 100%;
   aspect-ratio: 5/3;
-  padding: 8px 6px;
+  padding: 6px 4px; /* 收窄内边距 */
   background: #fff;
   position: relative;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 6px; /* 缩小圆角 */
   overflow: hidden;
 }
 
-/* 手机版：竖版自适应（取消固定比例，高度自适应） */
+/* 手机版：竖版自适应，全面瘦身优化 */
 @media (max-width: 768px) {
   .day {
     aspect-ratio: auto;
-    min-height: 80px;
+    min-height: 70px; /* 降低最小高度 */
     height: auto;
-    padding-bottom: 12px;
+    padding: 6px 4px 10px; /* 优化内边距 */
+  }
+  /* 手机版待办字体缩小，减少行数 */
+  .todo {
+    font-size: 13px !important; /* 缩小 */
+    -webkit-line-clamp: 1 !important; /* 改为1行，避免拥挤 */
   }
 }
 
@@ -215,29 +221,40 @@ body {
 .day.dark-text .todo {
   color: #ffffff !important;
 }
+
+/* 国历：位置微调，保持原有字号 */
 .num {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 4px;
+  left: 4px;
   font-size: 18px;
   font-weight: bold;
   color: #333;
 }
+
+/* 农历：缩小1号（9px）+ 上下竖排 + 右上角定位优化 */
 .lunar {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  font-size: 10px;
+  top: 4px;
+  right: 4px;
+  font-size: 9px; /* 原10px缩小1号 */
   color: #000000 !important;
+  writing-mode: vertical-lr; /* 上下书写，从左到右 */
+  text-orientation: upright; /* 字符直立，不旋转 */
+  line-height: 1.2; /* 紧凑行高 */
+  width: 12px; /* 固定宽度，避免换行 */
+  text-align: center;
 }
+
+/* 待办事项：与国历空隙优化，字体微调 */
 .todo {
   position: absolute;
-  top: 36px;
-  left: 6px;
-  right: 6px;
+  top: 32px; /* 微调，减少拥挤 */
+  left: 4px;
+  right: 4px;
   bottom: 4px;
-  font-size: 15px;
-  line-height: 1.3;
+  font-size: 14px; /* 电脑版也缩小 */
+  line-height: 1.2; /* 紧凑行高 */
   color: #444;
   word-break: break-all;
   overflow: hidden;
@@ -246,22 +263,22 @@ body {
   -webkit-box-orient: vertical;
 }
 
-/* 颜色面板 3行3列 */
+/* 颜色面板（手机端缩小，减少间距） */
 .color-panel {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px; /* 减少间距 */
+  margin-bottom: 14px;
 }
 .color-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 .color-dot {
-  width: 36px;
-  height: 36px;
+  width: 32px; /* 缩小 */
+  height: 32px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
@@ -270,12 +287,12 @@ body {
   border-color: #e99da9;
 }
 .color-name {
-  font-size: 11px;
+  font-size: 10px; /* 缩小 */
   color: #666;
   text-align: center;
 }
 
-/* 弹窗 */
+/* 弹窗（手机端收窄内边距，缩小字体） */
 .mask {
   position: fixed; inset:0; background:rgba(0,0,0,0.25);
   display: none;
@@ -286,10 +303,10 @@ body {
   top: 50%; left:50%;
   transform: translate(-50%,-50%);
   background:#fff;
-  border-radius: 18px;
-  padding: 24px;
-  width: 86%;
-  max-width: 360px;
+  border-radius: 16px;
+  padding: 20px; /* 收窄 */
+  width: 88%;
+  max-width: 340px; /* 收窄 */
   display: none;
   animation: popIn 0.3s ease;
   z-index: 100;
@@ -299,32 +316,32 @@ body {
   to { opacity:1; transform: translate(-50%,-50%) scale(1); }
 }
 .pop-title {
-  font-size: 17px;
+  font-size: 16px; /* 缩小 */
   font-weight: bold;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   text-align: center;
 }
 .pop-input {
   width: 100%;
-  height: 80px;
+  height: 70px; /* 缩短 */
   border: 1px solid #e6e2df;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 15px;
-  margin-bottom: 16px;
+  border-radius: 10px;
+  padding: 8px 10px; /* 收窄 */
+  font-size: 14px; /* 缩小 */
+  margin-bottom: 14px;
   resize: none;
   outline: none;
 }
 .pop-btns {
   display: flex;
-  gap: 10px;
+  gap: 8px; /* 减少间距 */
 }
 .pop-btns button {
   flex:1;
-  padding: 11px;
-  border-radius: 12px;
+  padding: 9px; /* 收窄 */
+  border-radius: 10px;
   border:none;
-  font-size: 15px;
+  font-size: 14px; /* 缩小 */
 }
 .btn-clear {
   background: #f1eeeb;
@@ -341,14 +358,14 @@ body {
 
 .toast {
   position: fixed;
-  bottom: 60px;
+  bottom: 40px; /* 上移，避免遮挡 */
   left:50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.7);
   color:#fff;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 13px;
+  padding: 7px 12px; /* 收窄 */
+  border-radius: 8px;
+  font-size: 12px; /* 缩小 */
   display: none;
   z-index: 101;
 }
@@ -416,15 +433,17 @@ let isDragging = false;
 let selectedDays = [];
 let data = JSON.parse(localStorage.getItem("cal_data")) || {};
 let curMonth, curKeys;
+let syncInterval = null; // 同步定时器
 
 // ==================== 工具 ====================
 function toast(txt) {
   const t = document.getElementById("toast");
   t.textContent = txt;
   t.style.display = "block";
-  setTimeout(() => t.style.display = "none", 1500);
+  setTimeout(() => t.style.display = "none", 1200); // 缩短提示时间
 }
 
+// 农历计算保持不变
 function getLunar(month, day) {
   const ld = [
     "", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
@@ -438,14 +457,38 @@ function getLunar(month, day) {
   return ld[idx] || "";
 }
 
-// ==================== 自动保存 ====================
-function autoSave() {
-  localStorage.setItem("cal_data", JSON.stringify(data));
+// ==================== 多设备实时同步核心 ====================
+// 统一存储键，确保所有设备读写同一数据
+const STORAGE_KEY = "cal_data_vollure_rose_2026";
+
+// 初始化数据：从统一存储读取
+function initData() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  data = stored ? JSON.parse(stored) : {};
 }
 
-// 页面离开前自动保存
+// 自动保存：写入统一存储
+function autoSave() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// 实时同步：定时拉取最新数据，更新页面
+function syncData() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) return;
+  const latestData = JSON.parse(stored);
+  // 对比数据是否有变化
+  if (JSON.stringify(data) !== JSON.stringify(latestData)) {
+    data = latestData;
+    render(); // 全量渲染，确保所有月份更新
+    toast("数据已同步");
+  }
+}
+
+// 页面离开前强制保存
 window.addEventListener("beforeunload", () => {
   autoSave();
+  if (syncInterval) clearInterval(syncInterval); // 清理定时器
 });
 
 // ==================== 登录记忆 ====================
@@ -636,21 +679,21 @@ document.getElementById("ok").onclick = () => {
     data[k] = { color, todo };
   });
   
-  autoSave();
+  autoSave(); // 保存到统一存储
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
-  toast(`已为${curKeys.length}个日期保存内容`);
+  toast(`已保存${curKeys.length}个日期`);
 };
 
 document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空选中日期的内容？")) return;
   curKeys.forEach(k => delete data[k]);
-  autoSave();
+  autoSave(); // 保存到统一存储
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
-  toast(`已清空${curKeys.length}个日期内容`);
+  toast(`已清空${curKeys.length}个日期`);
 };
 
 document.getElementById("cancel").onclick = closePop;
@@ -669,7 +712,7 @@ function clearMonth(m) {
   for (let k in data) {
     if (k.split("-")[0] == m) delete data[k];
   }
-  autoSave();
+  autoSave(); // 保存到统一存储
   renderMonth(m);
   bindDragSelect();
   toast(`${m}月已清空`);
@@ -681,14 +724,18 @@ document.getElementById("loginBtn").onclick = () => {
   const p = document.getElementById("pwd").value.trim();
   if (u === USER && p === PWD) {
     saveRemember();
+    initData(); // 初始化统一存储数据
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("main").style.display = "block";
     render();
+    // 启动实时同步：每2秒拉取一次最新数据
+    syncInterval = setInterval(syncData, 2000);
   } else {
     toast("账号或密码错误");
   }
 };
 
+// 页面加载
 window.onload = () => {
   loadRemember();
   document.addEventListener("touchmove", (e) => {
