@@ -92,6 +92,24 @@ body {
   border-color: #ff9a9e;
   box-shadow: 0 0 0 3px rgba(255,154,158,0.1);
 }
+/* 记住密码样式 */
+.remember-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.remember-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #ff9a9e;
+  cursor: pointer;
+}
+.remember-label {
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
 .login-btn {
   width: 100%;
   padding: 14px;
@@ -254,7 +272,7 @@ button:active {
   z-index: 2;
   position: relative;
 }
-/* 合并待办的样式 */
+/* 合并待办的样式（仅合并待办，保留日期） */
 .merge-todo {
   position: absolute;
   background: inherit;
@@ -265,6 +283,9 @@ button:active {
   justify-content: center;
   z-index: 3;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  /* 调整位置，不遮挡日期 */
+  top: 20px !important;
+  height: calc(100% - 20px) !important;
 }
 .day.empty {
   background: #fafafa;
@@ -436,6 +457,11 @@ button:active {
       <input type="password" class="form-input" id="password" placeholder="请输入密码">
       <div class="error-tip" id="pwdError">密码错误</div>
     </div>
+    <!-- 新增记住密码功能 -->
+    <div class="remember-wrap">
+      <input type="checkbox" class="remember-checkbox" id="rememberPwd">
+      <label class="remember-label" for="rememberPwd">记住密码（30天）</label>
+    </div>
     <button class="login-btn" id="loginBtn">登录</button>
   </div>
 </div>
@@ -508,11 +534,41 @@ button:active {
 // 登录相关配置
 const CORRECT_USERNAME = "vollurerose001";
 const CORRECT_PASSWORD = "linguiying";
+const REMEMBER_DAYS = 30; // 记住密码有效期（天）
+
+// ========== 新增：记住密码功能 ==========
+// 读取记住的密码
+function loadRememberedPwd() {
+  const rememberData = JSON.parse(localStorage.getItem('CAL2026_REMEMBER_PWD')) || {};
+  // 检查是否过期
+  if (rememberData.expireTime && new Date().getTime() < rememberData.expireTime) {
+    document.getElementById('username').value = rememberData.username || '';
+    document.getElementById('password').value = rememberData.password || '';
+    document.getElementById('rememberPwd').checked = true;
+  } else {
+    // 过期则清除
+    localStorage.removeItem('CAL2026_REMEMBER_PWD');
+  }
+}
+
+// 保存记住的密码
+function saveRememberedPwd(username, password) {
+  const expireTime = new Date().getTime() + REMEMBER_DAYS * 24 * 60 * 60 * 1000;
+  localStorage.setItem('CAL2026_REMEMBER_PWD', JSON.stringify({
+    username: username,
+    password: password,
+    expireTime: expireTime
+  }));
+}
+
+// 页面加载时读取记住的密码
+window.addEventListener('load', loadRememberedPwd);
 
 // 登录逻辑
 document.getElementById('loginBtn').addEventListener('click', function() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
+  const rememberPwd = document.getElementById('rememberPwd').checked;
   const userError = document.getElementById('userError');
   const pwdError = document.getElementById('pwdError');
   
@@ -532,6 +588,13 @@ document.getElementById('loginBtn').addEventListener('click', function() {
     pwdError.textContent = "密码错误，请输入正确的密码";
     pwdError.style.display = 'block';
     return;
+  }
+  
+  // 记住密码
+  if (rememberPwd) {
+    saveRememberedPwd(username, password);
+  } else {
+    localStorage.removeItem('CAL2026_REMEMBER_PWD');
   }
   
   // 登录成功：隐藏登录页，显示日历页
@@ -556,6 +619,52 @@ let isSelecting = false; // 是否正在拖动选择
 let selectedDateKeys = []; // 选中的日期key
 let startDayEl = null; // 拖动起始元素
 let isDragging = false; // 是否真的在拖动（区分点击和拖动）
+let isScrolling = false; // 新增：是否正在滑动页面
+
+// ========== 新增：滑动状态检测 ==========
+// 检测页面滑动状态
+function initScrollDetection() {
+  const calendarContainer = document.getElementById('calendarContainer');
+  
+  // 移动端触摸滑动检测
+  let touchStartY = 0;
+  let touchMoveY = 0;
+  
+  calendarContainer.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    // 开始触摸，标记可能要滑动
+    isScrolling = true;
+    // 清除之前的延迟判断
+    clearTimeout(window.scrollCheckTimer);
+  });
+  
+  calendarContainer.addEventListener('touchmove', (e) => {
+    touchMoveY = e.touches[0].clientY;
+    // 有垂直移动，判定为滑动中
+    if (Math.abs(touchMoveY - touchStartY) > 5) {
+      isScrolling = true;
+    }
+  });
+  
+  calendarContainer.addEventListener('touchend', () => {
+    // 滑动结束后，延迟200ms判定为停止滑动（避免快速点击误判）
+    window.scrollCheckTimer = setTimeout(() => {
+      isScrolling = false;
+    }, 200);
+  });
+  
+  // 鼠标滚轮滑动检测
+  calendarContainer.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > 0) {
+      isScrolling = true;
+      // 滑动停止后延迟判定
+      clearTimeout(window.scrollCheckTimer);
+      window.scrollCheckTimer = setTimeout(() => {
+        isScrolling = false;
+      }, 200);
+    }
+  });
+}
 
 // 判断是否需要文字反白
 function isDarkColor(hex) {
@@ -622,7 +731,7 @@ function getContinuousDays(monthEl) {
   return continuousGroups;
 }
 
-// 渲染合并待办
+// 渲染合并待办（仅合并待办，保留日期）
 function renderMergeTodos(monthEl) {
   // 先清除已有的合并待办
   monthEl.querySelectorAll('.merge-todo').forEach(el => el.remove());
@@ -640,7 +749,7 @@ function renderMergeTodos(monthEl) {
     const lastRect = lastEl.getBoundingClientRect();
     const containerRect = daysContainer.getBoundingClientRect();
 
-    // 计算合并待办的位置和尺寸
+    // 计算合并待办的位置和尺寸（避开日期数字区域）
     const top = firstRect.top - containerRect.top;
     const left = firstRect.left - containerRect.left;
     const width = lastRect.right - firstRect.left;
@@ -656,9 +765,11 @@ function renderMergeTodos(monthEl) {
     mergeEl.style.background = calendarData[firstEl.dataset.key].color;
     mergeEl.textContent = calendarData[firstEl.dataset.key].todo;
 
-    // 隐藏组内每个元素的单独待办
+    // 隐藏组内每个元素的单独待办（保留日期）
     group.forEach(el => {
       el.querySelector('.todo').style.display = 'none';
+      // 确保日期数字始终显示
+      el.querySelector('.num').style.display = 'block';
     });
 
     daysContainer.appendChild(mergeEl);
@@ -716,18 +827,24 @@ function renderCalendar() {
     renderMergeTodos(monthDiv);
   }
 
+  // 初始化滑动检测
+  initScrollDetection();
+  // 绑定日期事件
   bindDayEvents();
 }
 
-// 绑定日期事件：点击+拖动选中（防滑动误触）
+// 绑定日期事件：仅当页面停止滑动时触发点击/拖动
 function bindDayEvents() {
   const days = document.querySelectorAll('.day:not(.empty)');
   const mask = document.getElementById('mask');
   const panel = document.getElementById('panel');
 
   days.forEach(dayEl => {
-    // 鼠标端拖动选中
+    // 鼠标端拖动选中（增加滑动状态判断）
     dayEl.addEventListener('mousedown', (e) => {
+      // 滑动中，不触发任何操作
+      if (isScrolling) return;
+      
       e.preventDefault();
       isSelecting = true;
       isDragging = false;
@@ -739,7 +856,9 @@ function bindDayEvents() {
     });
 
     dayEl.addEventListener('mousemove', (e) => {
-      if (!isSelecting) return;
+      // 滑动中或未开始选择，不触发
+      if (isScrolling || !isSelecting) return;
+      
       isDragging = true;
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
@@ -751,8 +870,11 @@ function bindDayEvents() {
       }
     });
 
-    // 移动端触屏拖动选中
+    // 移动端触屏拖动选中（增加滑动状态判断）
     dayEl.addEventListener('touchstart', (e) => {
+      // 滑动中，不触发任何操作
+      if (isScrolling) return;
+      
       e.preventDefault();
       isSelecting = true;
       isDragging = false;
@@ -763,7 +885,9 @@ function bindDayEvents() {
     });
 
     dayEl.addEventListener('touchmove', (e) => {
-      if (!isSelecting) return;
+      // 滑动中或未开始选择，不触发
+      if (isScrolling || !isSelecting) return;
+      
       isDragging = true;
       const touch = e.touches[0];
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -908,7 +1032,7 @@ button:active {transform: scale(0.95);}
 .day:hover, .day:active {background: #f8f9fa;}
 .day .num {font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #333; z-index: 2; position: relative;}
 .day .todo {font-size: 11px; line-height: 1.3; overflow: hidden; max-height: 36px; color: #555; z-index: 2; position: relative;}
-.merge-todo {position: absolute; background: inherit; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
+.merge-todo {position: absolute; background: inherit; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 1px 3px rgba(0,0,0,0.1); top: 20px !important; height: calc(100% - 20px) !important;}
 .day.empty {background: #fafafa; cursor: default;}
 .day.dark .num, .day.dark .todo, .day.dark .merge-todo {color: #fff !important;}
 .day.selected {background: #e5f0ff; border: 2px solid #667eea;}
@@ -997,6 +1121,7 @@ let isSelecting = false;
 let selectedDateKeys = [];
 let startDayEl = null;
 let isDragging = false;
+let isScrolling = false;
 
 function isDarkColor(hex) {
   const colorMap = {"#FFB3E5":true,"#B3E5FF":true,"#FFFFFF":false};
@@ -1081,9 +1206,45 @@ function renderMergeTodos(monthEl) {
 
     group.forEach(el => {
       el.querySelector('.todo').style.display = 'none';
+      el.querySelector('.num').style.display = 'block';
     });
 
     daysContainer.appendChild(mergeEl);
+  });
+}
+
+function initScrollDetection() {
+  const calendarContainer = document.getElementById('calendarContainer');
+  let touchStartY = 0;
+  let touchMoveY = 0;
+  
+  calendarContainer.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    isScrolling = true;
+    clearTimeout(window.scrollCheckTimer);
+  });
+  
+  calendarContainer.addEventListener('touchmove', (e) => {
+    touchMoveY = e.touches[0].clientY;
+    if (Math.abs(touchMoveY - touchStartY) > 5) {
+      isScrolling = true;
+    }
+  });
+  
+  calendarContainer.addEventListener('touchend', () => {
+    window.scrollCheckTimer = setTimeout(() => {
+      isScrolling = false;
+    }, 200);
+  });
+  
+  calendarContainer.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) > 0) {
+      isScrolling = true;
+      clearTimeout(window.scrollCheckTimer);
+      window.scrollCheckTimer = setTimeout(() => {
+        isScrolling = false;
+      }, 200);
+    }
   });
 }
 
@@ -1131,6 +1292,7 @@ function renderCalendar() {
     renderMergeTodos(monthDiv);
   }
 
+  initScrollDetection();
   bindDayEvents();
 }
 
@@ -1141,6 +1303,8 @@ function bindDayEvents() {
 
   days.forEach(dayEl => {
     dayEl.addEventListener('mousedown', (e) => {
+      if (isScrolling) return;
+      
       e.preventDefault();
       isSelecting = true;
       isDragging = false;
@@ -1151,7 +1315,8 @@ function bindDayEvents() {
     });
 
     dayEl.addEventListener('mousemove', (e) => {
-      if (!isSelecting) return;
+      if (isScrolling || !isSelecting) return;
+      
       isDragging = true;
       const target = document.elementFromPoint(e.clientX, e.clientY);
       if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
@@ -1164,6 +1329,8 @@ function bindDayEvents() {
     });
 
     dayEl.addEventListener('touchstart', (e) => {
+      if (isScrolling) return;
+      
       e.preventDefault();
       isSelecting = true;
       isDragging = false;
@@ -1174,7 +1341,8 @@ function bindDayEvents() {
     });
 
     dayEl.addEventListener('touchmove', (e) => {
-      if (!isSelecting) return;
+      if (isScrolling || !isSelecting) return;
+      
       isDragging = true;
       const touch = e.touches[0];
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
