@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>2026轻奢行事历</title>
+<title>Vollure Rose 2026年度行事历</title>
 <style>
 * {
   box-sizing: border-box;
@@ -12,25 +12,30 @@
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 body {
-  background: #f7f5f2;
-  padding: 12px;
+  background: #faf8fd;
+  padding: 10px;
 }
 
-/* 登录 */
+/* 登录页 */
 .login-page {
   max-width: 380px;
-  margin: 60px auto;
+  margin: 70px auto;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 40px 30px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .login-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: bold;
   text-align: center;
   margin-bottom: 6px;
-  color: #3b3b3b;
+  color: #333;
 }
 .login-sub {
   text-align: center;
@@ -56,7 +61,7 @@ body {
   outline: none;
 }
 .form-group input:focus {
-  border-color: #bfa999;
+  border-color: #e99da9;
 }
 .remember {
   display: flex;
@@ -69,7 +74,7 @@ body {
 .login-btn {
   width: 100%;
   padding: 13px;
-  background: #bfa999;
+  background: #e99da9;
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -80,12 +85,17 @@ body {
 /* 主界面 */
 .calendar-container {
   display: none;
+  animation: pageIn 0.6s ease;
+}
+@keyframes pageIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .header {
   text-align: center;
   padding: 20px 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
   color: #444;
   position: relative;
 }
@@ -93,7 +103,7 @@ body {
   content: "";
   width: 30px;
   height: 3px;
-  background: #bfa999;
+  background: #e99da9;
   border-radius: 2px;
   position: absolute;
   bottom: 12px;
@@ -107,25 +117,25 @@ body {
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
 .month-head {
   padding: 14px 16px;
-  background: #f9f7f5;
+  background: #fdfafc;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .month-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
   color: #444;
 }
 .btn-clear-month {
   padding: 6px 10px;
   font-size: 12px;
-  background: #e4d5c9;
-  color: #6d5b54;
+  background: #fce4e8;
+  color: #c96f7d;
   border: none;
   border-radius: 8px;
 }
@@ -153,18 +163,19 @@ body {
   border-right: 1px solid #f0ebe7;
   border-bottom: 1px solid #f0ebe7;
   position: relative;
+  cursor: pointer;
 }
 .day:nth-child(7n) { border-right: none; }
 
 .num {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: bold;
   color: #333;
   margin-bottom: 2px;
 }
 .lunar {
   font-size: 10px;
-  color: #bfa999;
+  color: #e99da9;
   margin-left: 2px;
 }
 .todo {
@@ -175,27 +186,38 @@ body {
   word-break: break-all;
 }
 
-/* 轻奢色板 */
+/* 颜色面板 3行3列 */
 .color-panel {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 .color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.color-dot {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   cursor: pointer;
   border: 2px solid transparent;
 }
-.color-item.active {
-  border-color: #bfa999;
+.color-dot.active {
+  border-color: #e99da9;
+}
+.color-name {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
 }
 
 /* 弹窗 */
 .mask {
-  position: fixed; inset:0; background:rgba(0,0,0,0.2);
+  position: fixed; inset:0; background:rgba(0,0,0,0.25);
   display: none;
 }
 .pop {
@@ -208,10 +230,15 @@ body {
   width: 86%;
   max-width: 360px;
   display: none;
+  animation: popIn 0.3s ease;
+}
+@keyframes popIn {
+  from { opacity:0; transform: translate(-50%,-45%) scale(0.95); }
+  to { opacity:1; transform: translate(-50%,-50%) scale(1); }
 }
 .pop-title {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: bold;
   margin-bottom: 16px;
   text-align: center;
 }
@@ -237,13 +264,17 @@ body {
   border:none;
   font-size: 15px;
 }
-.btn-ok {
-  background: #bfa999;
-  color:#fff;
+.btn-clear {
+  background: #f1eeeb;
+  color:#666;
 }
 .btn-cancel {
   background: #f1eeeb;
   color:#666;
+}
+.btn-ok {
+  background: #e99da9;
+  color:#fff;
 }
 
 .toast {
@@ -257,6 +288,7 @@ body {
   border-radius: 10px;
   font-size: 13px;
   display: none;
+  z-index: 999;
 }
 </style>
 </head>
@@ -264,8 +296,8 @@ body {
 
 <!-- 登录 -->
 <div class="login-page" id="loginPage">
-  <div class="login-title">轻奢行事历</div>
-  <div class="login-sub">2026 · 简约精致</div>
+  <div class="login-title">Vollure Rose</div>
+  <div class="login-sub">2026年度行事历</div>
   <div class="form-group">
     <label>账号</label>
     <input id="user" type="text" placeholder="请输入账号">
@@ -283,7 +315,7 @@ body {
 
 <!-- 日历 -->
 <div class="calendar-container" id="main">
-  <div class="header">2026 轻奢行事历</div>
+  <div class="header">Vollure Rose 2026年度行事历</div>
   <div id="calendar"></div>
 </div>
 
@@ -294,6 +326,7 @@ body {
   <div class="color-panel" id="colors"></div>
   <textarea class="pop-input" id="todoInput" placeholder="输入内容..."></textarea>
   <div class="pop-btns">
+    <button class="btn-clear" id="clearBtn">清除</button>
     <button class="btn-cancel" id="cancel">取消</button>
     <button class="btn-ok" id="ok">确定</button>
   </div>
@@ -304,65 +337,79 @@ body {
 <script>
 // ==================== 配置 ====================
 const YEAR = 2026;
-const USER = "admin";
+const USER = "rose001";
 const PWD = "123456";
+
 const COLORS = [
-  "#f7f5f2","#e6e2df","#d9c8bc","#c4b8af","#bfa999",
-  "#a89a8e","#8c7d70","#7a6b5f","#6d5b54","#5a4f47"
+  { c: "#ffffff", name: "白色" },
+  { c: "#b86b77", name: "陈酒红" },
+  { c: "#7a947f", name: "暮光绿" },
+  { c: "#7b9cb3", name: "梦幻蓝" },
+  { c: "#949494", name: "冬日灰" },
+  { c: "#d49a6a", name: "伯爵橙" },
+  { c: "#e4b4b4", name: "奶茶粉" },
+  { c: "#f2d392", name: "香草黄" },
+  { c: "#f7c8d0", name: "泡沫粉" }
 ];
 
 // ==================== 工具 ====================
-function toast(txt){
-  const t=document.getElementById("toast");
-  t.textContent=txt; t.style.display="block";
-  setTimeout(()=>t.style.display="none",1500);
+function toast(txt) {
+  const t = document.getElementById("toast");
+  t.textContent = txt;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 1500);
 }
-function getLunar(month,day){
+
+function getLunar(month, day) {
   const ld = [
-    "","初一","初二","初三","初四","初五","初六","初七","初八","初九","初十",
-    "十一","十二","十三","十四","十五","十六","十七","十八","十九","二十",
-    "廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"
+    "", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+    "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+    "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"
   ];
-  const md=[0,31,28,31,30,31,30,31,31,30,31,30,31];
-  let s=0;
-  for(let i=1;i<month;i++)s+=md[i];
-  const idx = (s+day+8)%30+1;
-  return ld[idx]||"";
+  const md = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+  let sum = 0;
+  for (let i=1; i<month; i++) sum += md[i];
+  const idx = (sum + day + 8) % 30 + 1;
+  return ld[idx] || "";
 }
 
 // ==================== 登录记忆 ====================
-function loadRemember(){
-  const d=localStorage.getItem("cal_remember");
-  if(!d)return;
-  const {user,pwd,exp}=JSON.parse(d);
-  if(Date.now()>exp){localStorage.removeItem("cal_remember");return;}
-  document.getElementById("user").value=user;
-  document.getElementById("pwd").value=pwd;
-  document.getElementById("remember").checked=true;
-}
-function saveRemember(){
-  const user=document.getElementById("user").value;
-  const pwd=document.getElementById("pwd").value;
-  if(!document.getElementById("remember").checked){
+function loadRemember() {
+  const d = localStorage.getItem("cal_remember");
+  if (!d) return;
+  const { user, pwd, exp } = JSON.parse(d);
+  if (Date.now() > exp) {
     localStorage.removeItem("cal_remember");
     return;
   }
-  const exp=Date.now()+30*24*60*60*1000;
-  localStorage.setItem("cal_remember",JSON.stringify({user,pwd,exp}));
+  document.getElementById("user").value = user;
+  document.getElementById("pwd").value = pwd;
+  document.getElementById("remember").checked = true;
+}
+
+function saveRemember() {
+  const user = document.getElementById("user").value;
+  const pwd = document.getElementById("pwd").value;
+  if (!document.getElementById("remember").checked) {
+    localStorage.removeItem("cal_remember");
+    return;
+  }
+  const exp = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  localStorage.setItem("cal_remember", JSON.stringify({ user, pwd, exp }));
 }
 
 // ==================== 数据 ====================
-let data = JSON.parse(localStorage.getItem("cal_data"))||{};
+let data = JSON.parse(localStorage.getItem("cal_data")) || {};
 let curMonth, curKeys;
 
 // ==================== 渲染 ====================
-function render(){
-  const cal=document.getElementById("calendar");
-  cal.innerHTML="";
-  for(let m=1;m<=12;m++){
-    const mEl=document.createElement("div");
-    mEl.className="month";
-    mEl.innerHTML=`
+function render() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  for (let m = 1; m <= 12; m++) {
+    const mEl = document.createElement("div");
+    mEl.className = "month";
+    mEl.innerHTML = `
       <div class="month-head">
         <div class="month-title">${m}月</div>
         <button class="btn-clear-month" onclick="clearMonth(${m})">清空本月</button>
@@ -377,17 +424,17 @@ function render(){
   }
 }
 
-function renderMonth(m){
-  const box=document.getElementById(`days-${m}`);
-  box.innerHTML="";
-  const first = new Date(YEAR,m-1,1).getDay();
-  const days = new Date(YEAR,m,0).getDate();
-  for(let i=0;i<first;i++)box.innerHTML+=`<div class="day"></div>`;
-  for(let d=1;d<=days;d++){
-    const key=`${m}-${d}`;
-    const item=data[key]||{color:"#f7f5f2",todo:""};
-    const lunar=getLunar(m,d);
-    box.innerHTML+=`
+function renderMonth(m) {
+  const box = document.getElementById(`days-${m}`);
+  box.innerHTML = "";
+  const first = new Date(YEAR, m-1, 1).getDay();
+  const days = new Date(YEAR, m, 0).getDate();
+  for (let i=0; i<first; i++) box.innerHTML += `<div class="day"></div>`;
+  for (let d=1; d<=days; d++) {
+    const key = `${m}-${d}`;
+    const item = data[key] || { color: "#ffffff", todo: "" };
+    const lunar = getLunar(m, d);
+    box.innerHTML += `
       <div class="day" style="background:${item.color}" onclick="openEdit(${m},${d})">
         <div class="num">${d}<span class="lunar">${lunar}</span></div>
         <div class="todo">${item.todo}</div>
@@ -397,72 +444,100 @@ function renderMonth(m){
 }
 
 // ==================== 编辑 ====================
-function openEdit(m,d){
-  curMonth=m; curKeys=[`${m}-${d}`];
-  const item=data[curKeys[0]]||{color:"#f7f5f2",todo:""};
-  document.getElementById("todoInput").value=item.todo;
+function openEdit(m, d) {
+  curMonth = m;
+  curKeys = [`${m}-${d}`];
+  const item = data[curKeys[0]] || { color: "#ffffff", todo: "" };
+  document.getElementById("todoInput").value = item.todo;
   buildColors(item.color);
-  document.getElementById("mask").style.display="block";
-  document.getElementById("pop").style.display="block";
+  document.getElementById("mask").style.display = "block";
+  document.getElementById("pop").style.display = "block";
 }
 
-function buildColors(active){
-  const box=document.getElementById("colors");
-  box.innerHTML="";
-  COLORS.forEach(c=>{
-    const el=document.createElement("div");
-    el.className="color-item"+(c==active?" active":"");
-    el.style.background=c;
-    el.onclick=()=>{
-      document.querySelectorAll(".color-item").forEach(i=>i.classList.remove("active"));
-      el.classList.add("active");
+function buildColors(activeColor) {
+  const box = document.getElementById("colors");
+  box.innerHTML = "";
+  COLORS.forEach(item => {
+    const isActive = item.c === activeColor;
+    const html = `
+      <div class="color-item">
+        <div class="color-dot ${isActive ? 'active' : ''}" style="background:${item.c}"></div>
+        <div class="color-name">${item.name}</div>
+      </div>
+    `;
+    box.innerHTML += html;
+  });
+
+  document.querySelectorAll(".color-dot").forEach((dot, i) => {
+    dot.onclick = () => {
+      document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+      dot.classList.add("active");
     };
-    box.appendChild(el);
   });
 }
 
-document.getElementById("ok").onclick=()=>{
-  const c=document.querySelector(".color-item.active").style.backgroundColor;
-  const t=document.getElementById("todoInput").value.trim();
-  curKeys.forEach(k=>data[k]={color:c,todo:t});
-  localStorage.setItem("cal_data",JSON.stringify(data));
+// 确定
+document.getElementById("ok").onclick = () => {
+  const active = document.querySelector(".color-dot.active");
+  if (!active) return;
+  const color = active.style.backgroundColor;
+  const todo = document.getElementById("todoInput").value.trim();
+  curKeys.forEach(k => {
+    data[k] = { color, todo };
+  });
+  localStorage.setItem("cal_data", JSON.stringify(data));
   renderMonth(curMonth);
   closePop();
   toast("已保存");
 };
 
-document.getElementById("cancel").onclick=closePop;
-function closePop(){
-  document.getElementById("mask").style.display="none";
-  document.getElementById("pop").style.display="none";
+// 清除（清空当前日期）
+document.getElementById("clearBtn").onclick = () => {
+  if (!confirm("确定清空此日期内容？")) return;
+  curKeys.forEach(k => delete data[k]);
+  localStorage.setItem("cal_data", JSON.stringify(data));
+  renderMonth(curMonth);
+  closePop();
+  toast("已清空");
+};
+
+// 取消
+document.getElementById("cancel").onclick = closePop;
+
+// 点击遮罩关闭
+document.getElementById("mask").onclick = closePop;
+
+function closePop() {
+  document.getElementById("mask").style.display = "none";
+  document.getElementById("pop").style.display = "none";
 }
 
 // ==================== 清空本月 ====================
-function clearMonth(m){
-  if(!confirm(`确定清空 ${m}月 所有内容？`))return;
-  for(let k in data){
-    if(k.split("-")[0]==m) delete data[k];
+function clearMonth(m) {
+  if (!confirm(`确定清空 ${m}月 所有内容？`)) return;
+  for (let k in data) {
+    if (k.split("-")[0] == m) delete data[k];
   }
-  localStorage.setItem("cal_data",JSON.stringify(data));
+  localStorage.setItem("cal_data", JSON.stringify(data));
   renderMonth(m);
   toast(`${m}月已清空`);
 }
 
 // ==================== 登录 ====================
-document.getElementById("loginBtn").onclick=()=>{
-  const u=document.getElementById("user").value;
-  const p=document.getElementById("pwd").value;
-  if(u==USER&&p==PWD){
+document.getElementById("loginBtn").onclick = () => {
+  const u = document.getElementById("user").value.trim();
+  const p = document.getElementById("pwd").value.trim();
+  if (u === USER && p === PWD) {
     saveRemember();
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("main").style.display="block";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("main").style.display = "block";
     render();
-  }else{
+  } else {
     toast("账号或密码错误");
   }
 };
 
-window.onload=loadRemember;
+window.onload = loadRemember;
 </script>
 </body>
 </html>
