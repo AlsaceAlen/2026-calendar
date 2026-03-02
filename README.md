@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="format-detection" content="telephone=no, email=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>2026 趣味行事历</title>
+<title>vollure rose 2026年行事历</title>
 <style>
 /* 全局样式重置+基础美化 */
 * {box-sizing: border-box; margin: 0; padding: 0; font-family: PingFang SC, Microsoft YaHei, sans-serif;}
@@ -16,8 +16,108 @@ body {
   -webkit-user-select: none; 
   user-select: none;
   min-height: 100vh;
+  touch-action: pan-y; /* 仅允许垂直滑动，防止触发拖动选中 */
 }
-.container {
+
+/* 登录页面样式（核心新增） */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.login-title {
+  font-size: 28px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #d685ad 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 8px;
+}
+.login-subtitle {
+  font-size: 16px;
+  color: #666;
+}
+/* 趣味装饰元素 */
+.login-decoration {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9a9e'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center no-repeat;
+  background-size: contain;
+  opacity: 0.8;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0% {transform: translateY(0px);}
+  50% {transform: translateY(-10px);}
+  100% {transform: translateY(0px);}
+}
+
+/* 登录表单样式 */
+.login-form {
+  background: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+.form-input:focus {
+  outline: none;
+  border-color: #ff9a9e;
+  box-shadow: 0 0 0 3px rgba(255,154,158,0.1);
+}
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #d685ad 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+.login-btn:active {
+  transform: scale(0.98);
+}
+.error-tip {
+  color: #ff3b30;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+/* 日历主界面（默认隐藏） */
+.calendar-container {
+  display: none;
   max-width: 100%;
   margin: 0 auto;
   background: #fff;
@@ -27,16 +127,16 @@ body {
   margin: 10px;
 }
 /* 顶部标题美化 */
-.header {
+.calendar-header {
   text-align: center;
   padding: 20px 0;
-  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+  background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #d685ad 100%);
   color: #fff;
   font-size: 20px;
   font-weight: bold;
   position: relative;
 }
-.header::after {
+.calendar-header::after {
   content: '';
   display: block;
   width: 60px;
@@ -116,12 +216,13 @@ button:active {
   text-align: center;
   font-weight: bold;
 }
-/* 日期格子 */
+/* 日期格子（核心：支持合并显示） */
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1px;
   background: #f0f0f0;
+  position: relative;
 }
 .day {
   background: #fff;
@@ -131,6 +232,7 @@ button:active {
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s ease;
+  z-index: 1; /* 默认层级 */
 }
 .day:hover, .day:active {
   background: #f8f9fa;
@@ -140,6 +242,8 @@ button:active {
   font-size: 14px;
   margin-bottom: 4px;
   color: #333;
+  z-index: 2;
+  position: relative;
 }
 .day .todo {
   font-size: 11px;
@@ -147,16 +251,36 @@ button:active {
   overflow: hidden;
   max-height: 36px;
   color: #555;
+  z-index: 2;
+  position: relative;
+}
+/* 合并待办的样式 */
+.merge-todo {
+  position: absolute;
+  background: inherit;
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .day.empty {
   background: #fafafa;
   cursor: default;
 }
 /* 深色背景文字反白 */
-.day.dark .num, .day.dark .todo {
+.day.dark .num, .day.dark .todo,
+.day.dark .merge-todo {
   color: #fff !important;
 }
-/* 编辑弹窗样式（核心优化） */
+/* 选中状态 */
+.day.selected {
+  background: #e5f0ff;
+  border: 2px solid #667eea;
+}
+/* 编辑弹窗样式 */
 .mask {
   position: fixed;
   top: 0;
@@ -257,6 +381,10 @@ button:active {
 .btn-confirm {
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
+.btn-cancel {
+  background: #e0e0e0;
+  color: #666;
+}
 /* 提示框 */
 .toast {
   position: fixed;
@@ -277,7 +405,7 @@ button:active {
   to {opacity: 1; bottom: 30px;}
 }
 /* 趣味装饰 */
-.decoration {
+.calendar-decoration {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -290,11 +418,33 @@ button:active {
 </style>
 </head>
 <body>
+<!-- 登录页面（默认显示） -->
+<div class="login-page" id="loginPage">
+  <div class="login-header">
+    <div class="login-decoration"></div>
+    <h1 class="login-title">vollure rose</h1>
+    <p class="login-subtitle">2026年行事历</p>
+  </div>
+  <div class="login-form">
+    <div class="form-group">
+      <label class="form-label">登录账号</label>
+      <input type="text" class="form-input" id="username" placeholder="请输入账号">
+      <div class="error-tip" id="userError">账号格式错误</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">登录密码</label>
+      <input type="password" class="form-input" id="password" placeholder="请输入密码">
+      <div class="error-tip" id="pwdError">密码错误</div>
+    </div>
+    <button class="login-btn" id="loginBtn">登录</button>
+  </div>
+</div>
 
-<div class="container">
-  <div class="header">
-    <div class="decoration"></div>
-    2026 趣味行事历
+<!-- 日历主界面（默认隐藏） -->
+<div class="calendar-container" id="calendarContainer">
+  <div class="calendar-header">
+    <div class="calendar-decoration"></div>
+    vollure rose 2026年行事历
   </div>
   <div class="btns">
     <button class="btn-save" id="saveFile">保存最新日历</button>
@@ -305,7 +455,7 @@ button:active {
 
 <!-- 遮罩层（点击空白处关闭弹窗） -->
 <div class="mask" id="mask"></div>
-<!-- 编辑弹窗（核心优化） -->
+<!-- 编辑弹窗 -->
 <div class="panel" id="panel">
   <h4>编辑日期事项</h4>
   <!-- 颜色选择：圆形+两行+文字在下 -->
@@ -348,12 +498,52 @@ button:active {
   <!-- 按钮组 -->
   <div class="btn-group">
     <button class="btn-confirm" id="apply">确定</button>
+    <button class="btn-cancel" id="cancel">取消</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+// 登录相关配置
+const CORRECT_USERNAME = "vollurerose001";
+const CORRECT_PASSWORD = "linguiying";
+
+// 登录逻辑
+document.getElementById('loginBtn').addEventListener('click', function() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const userError = document.getElementById('userError');
+  const pwdError = document.getElementById('pwdError');
+  
+  // 重置错误提示
+  userError.style.display = 'none';
+  pwdError.style.display = 'none';
+  
+  // 验证账号
+  if (username !== CORRECT_USERNAME) {
+    userError.textContent = "账号错误，请输入正确的账号";
+    userError.style.display = 'block';
+    return;
+  }
+  
+  // 验证密码
+  if (password !== CORRECT_PASSWORD) {
+    pwdError.textContent = "密码错误，请输入正确的密码";
+    pwdError.style.display = 'block';
+    return;
+  }
+  
+  // 登录成功：隐藏登录页，显示日历页
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('calendarContainer').style.display = 'block';
+  showToast('登录成功！');
+  
+  // 首次渲染日历
+  renderCalendar();
+});
+
+// 日历核心逻辑
 const YEAR = 2026;
 const monthNames = "1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月".split(",");
 const weeks = "日,一,二,三,四,五,六".split(",");
@@ -361,7 +551,11 @@ const holidays = {"1-1":"元旦","2-16":"除夕","2-17":"春节","3-3":"元宵�
 
 // 存储数据：兼容微信内置浏览器
 let calendarData = JSON.parse(localStorage.getItem('CAL2026_WECHAT')) || {};
-let currentDateKey = ''; // 当前编辑的日期key
+// 多选相关变量
+let isSelecting = false; // 是否正在拖动选择
+let selectedDateKeys = []; // 选中的日期key
+let startDayEl = null; // 拖动起始元素
+let isDragging = false; // 是否真的在拖动（区分点击和拖动）
 
 // 判断是否需要文字反白
 function isDarkColor(hex) {
@@ -379,6 +573,96 @@ function showToast(text) {
   toast.textContent = text;
   toast.style.display = 'block';
   setTimeout(() => toast.style.display = 'none', 1500);
+}
+
+// 检测连续日期（同行列）
+function getContinuousDays(monthEl) {
+  const dayEls = monthEl.querySelectorAll('.day:not(.empty)');
+  const continuousGroups = [];
+  let currentGroup = [];
+
+  // 遍历所有日期，按行分组（7个为一行）
+  const rows = [];
+  let currentRow = [];
+  dayEls.forEach((el, index) => {
+    currentRow.push(el);
+    if ((index + 1) % 7 === 0) {
+      rows.push(currentRow);
+      currentRow = [];
+    }
+  });
+  if (currentRow.length > 0) rows.push(currentRow);
+
+  // 检查每行内的连续相同待办
+  rows.forEach(row => {
+    currentGroup = [row[0]];
+    for (let i = 1; i < row.length; i++) {
+      const prevEl = row[i-1];
+      const currEl = row[i];
+      const prevKey = prevEl.dataset.key;
+      const currKey = currEl.dataset.key;
+      const prevData = calendarData[prevKey] || { todo: '', color: '#FFFFFF' };
+      const currData = calendarData[currKey] || { todo: '', color: '#FFFFFF' };
+
+      // 同行列、待办相同、颜色相同 → 加入当前组
+      if (prevData.todo && prevData.todo === currData.todo && prevData.color === currData.color) {
+        currentGroup.push(currEl);
+      } else {
+        if (currentGroup.length > 1) {
+          continuousGroups.push(currentGroup);
+        }
+        currentGroup = [currEl];
+      }
+    }
+    if (currentGroup.length > 1) {
+      continuousGroups.push(currentGroup);
+    }
+  });
+
+  return continuousGroups;
+}
+
+// 渲染合并待办
+function renderMergeTodos(monthEl) {
+  // 先清除已有的合并待办
+  monthEl.querySelectorAll('.merge-todo').forEach(el => el.remove());
+  
+  const continuousGroups = getContinuousDays(monthEl);
+  const daysContainer = monthEl.querySelector('.days');
+
+  continuousGroups.forEach(group => {
+    if (group.length < 2) return;
+
+    // 获取组内第一个和最后一个元素的位置
+    const firstEl = group[0];
+    const lastEl = group[group.length - 1];
+    const firstRect = firstEl.getBoundingClientRect();
+    const lastRect = lastEl.getBoundingClientRect();
+    const containerRect = daysContainer.getBoundingClientRect();
+
+    // 计算合并待办的位置和尺寸
+    const top = firstRect.top - containerRect.top;
+    const left = firstRect.left - containerRect.left;
+    const width = lastRect.right - firstRect.left;
+    const height = firstRect.height;
+
+    // 创建合并待办元素
+    const mergeEl = document.createElement('div');
+    mergeEl.className = 'merge-todo';
+    mergeEl.style.top = `${top}px`;
+    mergeEl.style.left = `${left}px`;
+    mergeEl.style.width = `${width}px`;
+    mergeEl.style.height = `${height}px`;
+    mergeEl.style.background = calendarData[firstEl.dataset.key].color;
+    mergeEl.textContent = calendarData[firstEl.dataset.key].todo;
+
+    // 隐藏组内每个元素的单独待办
+    group.forEach(el => {
+      el.querySelector('.todo').style.display = 'none';
+    });
+
+    daysContainer.appendChild(mergeEl);
+  });
 }
 
 // 渲染日历
@@ -427,37 +711,121 @@ function renderCalendar() {
 
     monthDiv.appendChild(daysDiv);
     calendarEl.appendChild(monthDiv);
+
+    // 渲染合并待办
+    renderMergeTodos(monthDiv);
   }
 
   bindDayEvents();
 }
 
-// 绑定日期事件：仅点击触发（取消滑动选中）
+// 绑定日期事件：点击+拖动选中（防滑动误触）
 function bindDayEvents() {
   const days = document.querySelectorAll('.day:not(.empty)');
+  const mask = document.getElementById('mask');
+  const panel = document.getElementById('panel');
+
   days.forEach(dayEl => {
-    // 仅点击触发编辑窗口，取消所有滑动/ hover 选中逻辑
-    dayEl.addEventListener('click', () => {
-      currentDateKey = dayEl.dataset.key;
-      openEditPanel();
-    });
-    // 移动端触屏点击兼容
-    dayEl.addEventListener('touchend', (e) => {
+    // 鼠标端拖动选中
+    dayEl.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      currentDateKey = dayEl.dataset.key;
-      openEditPanel();
+      isSelecting = true;
+      isDragging = false;
+      startDayEl = dayEl;
+      selectedDateKeys = [dayEl.dataset.key];
+      // 清除所有选中状态
+      document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+      dayEl.classList.add('selected');
     });
+
+    dayEl.addEventListener('mousemove', (e) => {
+      if (!isSelecting) return;
+      isDragging = true;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
+        const key = target.dataset.key;
+        if (!selectedDateKeys.includes(key)) {
+          selectedDateKeys.push(key);
+          target.classList.add('selected');
+        }
+      }
+    });
+
+    // 移动端触屏拖动选中
+    dayEl.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      isSelecting = true;
+      isDragging = false;
+      startDayEl = dayEl;
+      selectedDateKeys = [dayEl.dataset.key];
+      document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+      dayEl.classList.add('selected');
+    });
+
+    dayEl.addEventListener('touchmove', (e) => {
+      if (!isSelecting) return;
+      isDragging = true;
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
+        const key = target.dataset.key;
+        if (!selectedDateKeys.includes(key)) {
+          selectedDateKeys.push(key);
+          target.classList.add('selected');
+        }
+      }
+    });
+
+    // 点击/拖动结束
+    dayEl.addEventListener('mouseup', handleSelectEnd);
+    dayEl.addEventListener('touchend', handleSelectEnd);
+  });
+
+  // 全局结束选择
+  document.addEventListener('mouseup', handleSelectEnd);
+  document.addEventListener('touchend', handleSelectEnd);
+
+  // 处理选择结束逻辑
+  function handleSelectEnd() {
+    if (!isSelecting) return;
+    isSelecting = false;
+
+    // 拖动选中 → 打开编辑面板
+    if (isDragging && selectedDateKeys.length > 0) {
+      openEditPanel();
+    } 
+    // 纯点击 → 打开编辑面板
+    else if (!isDragging && startDayEl) {
+      openEditPanel();
+    }
+
+    // 重置状态
+    isDragging = false;
+    startDayEl = null;
+  }
+
+  // 点击空白处关闭面板
+  mask.addEventListener('click', () => {
+    closeEditPanel();
+    // 清除选中状态
+    document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+    selectedDateKeys = [];
+  });
+
+  // 阻止面板内点击触发遮罩关闭
+  panel.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 }
 
-// 打开编辑面板（核心优化：清空输入框+默认白色）
+// 打开编辑面板（清空输入框+默认白色）
 function openEditPanel() {
   const panel = document.getElementById('panel');
   const mask = document.getElementById('mask');
   const todoInput = document.getElementById('todoText');
   const colorDots = document.querySelectorAll('.color-dot');
 
-  // 1. 清空输入框，不留存上一次文字
+  // 1. 清空输入框
   todoInput.value = '';
   // 2. 颜色默认选中白色
   colorDots.forEach(dot => dot.classList.remove('active'));
@@ -472,7 +840,9 @@ function openEditPanel() {
 function closeEditPanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('mask').style.display = 'none';
-  currentDateKey = '';
+  // 清除选中状态
+  document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+  selectedDateKeys = [];
 }
 
 // 颜色选择事件（圆形色块）
@@ -483,29 +853,27 @@ document.querySelectorAll('.color-dot').forEach(dot => {
   });
 });
 
-// 点击空白处（遮罩层）关闭面板
-document.getElementById('mask').addEventListener('click', closeEditPanel);
-// 阻止面板内点击触发遮罩关闭
-document.getElementById('panel').addEventListener('click', (e) => {
-  e.stopPropagation();
-});
+// 取消按钮事件
+document.getElementById('cancel').addEventListener('click', closeEditPanel);
 
 // 确定保存
 document.getElementById('apply').addEventListener('click', () => {
-  if (!currentDateKey) return;
+  if (selectedDateKeys.length === 0) return;
   
   // 获取选中的颜色和输入的文字
   const selectedColor = document.querySelector('.color-dot.active').dataset.c;
   const todoText = document.getElementById('todoText').value.trim();
   
   // 保存数据
-  calendarData[currentDateKey] = { color: selectedColor, todo: todoText };
+  selectedDateKeys.forEach(key => {
+    calendarData[key] = { color: selectedColor, todo: todoText };
+  });
   localStorage.setItem('CAL2026_WECHAT', JSON.stringify(calendarData));
   
   // 重新渲染+关闭面板
   renderCalendar();
   closeEditPanel();
-  showToast('保存成功！');
+  showToast(`已为${selectedDateKeys.length}个日期保存事项！`);
 });
 
 // 保存日历文件
@@ -516,13 +884,13 @@ document.getElementById('saveFile').addEventListener('click', () => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="format-detection" content="telephone=no">
-<title>2026 趣味行事历（已同步）</title>
+<title>vollure rose 2026年行事历（已同步）</title>
 <style>
 * {box-sizing: border-box; margin: 0; padding: 0; font-family: PingFang SC, Microsoft YaHei, sans-serif;}
-body {background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); padding: 10px 0; -webkit-user-select: none; user-select: none; min-height: 100vh;}
+body {background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%); padding: 10px 0; -webkit-user-select: none; user-select: none; min-height: 100vh; touch-action: pan-y;}
 .container {max-width: 100%; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin: 10px;}
-.header {text-align: center; padding: 20px 0; background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%); color: #fff; font-size: 20px; font-weight: bold; position: relative;}
-.header::after {content: ''; display: block; width: 60px; height: 4px; background: #fff; border-radius: 2px; margin: 8px auto 0;}
+.calendar-header {text-align: center; padding: 20px 0; background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 99%, #d685ad 100%); color: #fff; font-size: 20px; font-weight: bold; position: relative;}
+.calendar-header::after {content: ''; display: block; width: 60px; height: 4px; background: #fff; border-radius: 2px; margin: 8px auto 0;}
 .btns {display: flex; justify-content: center; gap: 12px; padding: 15px 10px; background: #fff;}
 button {padding: 10px 20px; border: none; border-radius: 20px; color: white; font-size: 14px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;}
 button:active {transform: scale(0.95);}
@@ -535,15 +903,17 @@ button:active {transform: scale(0.95);}
 .month-title {font-size: 18px; font-weight: bold; color: #333;}
 .week {display: grid; grid-template-columns: repeat(7, 1fr); background: #f8f9fa; font-size: 12px; color: #666;}
 .week div {padding: 8px 0; text-align: center; font-weight: bold;}
-.days {display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #f0f0f0;}
-.day {background: #fff; min-height: 60px; padding: 6px; position: relative; cursor: pointer; font-size: 12px; transition: all 0.2s ease;}
+.days {display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #f0f0f0; position: relative;}
+.day {background: #fff; min-height: 60px; padding: 6px; position: relative; cursor: pointer; font-size: 12px; transition: all 0.2s ease; z-index: 1;}
 .day:hover, .day:active {background: #f8f9fa;}
-.day .num {font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #333;}
-.day .todo {font-size: 11px; line-height: 1.3; overflow: hidden; max-height: 36px; color: #555;}
+.day .num {font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #333; z-index: 2; position: relative;}
+.day .todo {font-size: 11px; line-height: 1.3; overflow: hidden; max-height: 36px; color: #555; z-index: 2; position: relative;}
+.merge-todo {position: absolute; background: inherit; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
 .day.empty {background: #fafafa; cursor: default;}
-.day.dark .num, .day.dark .todo {color: #fff !important;}
+.day.dark .num, .day.dark .todo, .day.dark .merge-todo {color: #fff !important;}
+.day.selected {background: #e5f0ff; border: 2px solid #667eea;}
 .mask {position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 99; backdrop-filter: blur(2px);}
-.panel {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; display: none; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.15); animation: popup 0.3s ease;}
+.panel {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; display: none; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.15); animation: popup 0.3s ease;}
 @keyframes popup {from {opacity: 0; transform: translate(-50%, -45%);} to {opacity: 1; transform: translate(-50%, -50%);}}
 .panel h4 {margin-bottom: 20px; font-size: 18px; color: #333; text-align: center; font-weight: bold;}
 .color-row-wrap {display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px 10px; margin-bottom: 20px;}
@@ -555,16 +925,17 @@ button:active {transform: scale(0.95);}
 .btn-group {display: flex; gap: 10px;}
 .btn-group button {flex: 1; padding: 12px 0; border-radius: 10px; font-size: 16px;}
 .btn-confirm {background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);}
+.btn-cancel {background: #e0e0e0; color: #666;}
 .toast {position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; display: none; z-index: 101; animation: fadeIn 0.3s ease;}
 @keyframes fadeIn {from {opacity: 0; bottom: 20px;} to {opacity: 1; bottom: 30px;}}
-.decoration {position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E") center no-repeat; background-size: 24px; opacity: 0.8;}
+.calendar-decoration {position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E") center no-repeat; background-size: 24px; opacity: 0.8;}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <div class="decoration"></div>
-    2026 趣味行事历
+  <div class="calendar-header">
+    <div class="calendar-decoration"></div>
+    vollure rose 2026年行事历
   </div>
   <div class="btns">
     <button class="btn-save" id="saveFile">保存最新日历</button>
@@ -612,6 +983,7 @@ button:active {transform: scale(0.95);}
   <textarea class="todo-input" id="todoText" placeholder="输入待办事项（如：出差、开会）"></textarea>
   <div class="btn-group">
     <button class="btn-confirm" id="apply">确定</button>
+    <button class="btn-cancel" id="cancel">取消</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -621,25 +993,110 @@ const monthNames = "1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12�
 const weeks = "日,一,二,三,四,五,六".split(",");
 const holidays = {"1-1":"元旦","2-16":"除夕","2-17":"春节","3-3":"元宵节","4-5":"清明","5-1":"劳动节","6-19":"端午","10-1":"国庆"};
 let calendarData = ${JSON.stringify(calendarData)};
-let currentDateKey = '';
+let isSelecting = false;
+let selectedDateKeys = [];
+let startDayEl = null;
+let isDragging = false;
+
 function isDarkColor(hex) {
   const colorMap = {"#FFB3E5":true,"#B3E5FF":true,"#FFFFFF":false};
   return colorMap[hex] || false;
 }
+
 function showToast(text) {
   const toast = document.getElementById('toast');
   toast.textContent = text;
   toast.style.display = 'block';
   setTimeout(() => toast.style.display = 'none', 1500);
 }
+
+function getContinuousDays(monthEl) {
+  const dayEls = monthEl.querySelectorAll('.day:not(.empty)');
+  const continuousGroups = [];
+  let currentGroup = [];
+  const rows = [];
+  let currentRow = [];
+  dayEls.forEach((el, index) => {
+    currentRow.push(el);
+    if ((index + 1) % 7 === 0) {
+      rows.push(currentRow);
+      currentRow = [];
+    }
+  });
+  if (currentRow.length > 0) rows.push(currentRow);
+
+  rows.forEach(row => {
+    currentGroup = [row[0]];
+    for (let i = 1; i < row.length; i++) {
+      const prevEl = row[i-1];
+      const currEl = row[i];
+      const prevKey = prevEl.dataset.key;
+      const currKey = currEl.dataset.key;
+      const prevData = calendarData[prevKey] || { todo: '', color: '#FFFFFF' };
+      const currData = calendarData[currKey] || { todo: '', color: '#FFFFFF' };
+
+      if (prevData.todo && prevData.todo === currData.todo && prevData.color === currData.color) {
+        currentGroup.push(currEl);
+      } else {
+        if (currentGroup.length > 1) {
+          continuousGroups.push(currentGroup);
+        }
+        currentGroup = [currEl];
+      }
+    }
+    if (currentGroup.length > 1) {
+      continuousGroups.push(currentGroup);
+    }
+  });
+
+  return continuousGroups;
+}
+
+function renderMergeTodos(monthEl) {
+  monthEl.querySelectorAll('.merge-todo').forEach(el => el.remove());
+  const continuousGroups = getContinuousDays(monthEl);
+  const daysContainer = monthEl.querySelector('.days');
+
+  continuousGroups.forEach(group => {
+    if (group.length < 2) return;
+    const firstEl = group[0];
+    const lastEl = group[group.length - 1];
+    const firstRect = firstEl.getBoundingClientRect();
+    const lastRect = lastEl.getBoundingClientRect();
+    const containerRect = daysContainer.getBoundingClientRect();
+
+    const top = firstRect.top - containerRect.top;
+    const left = firstRect.left - containerRect.left;
+    const width = lastRect.right - firstRect.left;
+    const height = firstRect.height;
+
+    const mergeEl = document.createElement('div');
+    mergeEl.className = 'merge-todo';
+    mergeEl.style.top = \`\${top}px\`;
+    mergeEl.style.left = \`\${left}px\`;
+    mergeEl.style.width = \`\${width}px\`;
+    mergeEl.style.height = \`\${height}px\`;
+    mergeEl.style.background = calendarData[firstEl.dataset.key].color;
+    mergeEl.textContent = calendarData[firstEl.dataset.key].todo;
+
+    group.forEach(el => {
+      el.querySelector('.todo').style.display = 'none';
+    });
+
+    daysContainer.appendChild(mergeEl);
+  });
+}
+
 function renderCalendar() {
   const calendarEl = document.getElementById('calendar');
   calendarEl.innerHTML = '';
+
   for (let month = 0; month < 12; month++) {
     const firstDay = new Date(YEAR, month, 1).getDay();
     const daysInMonth = new Date(YEAR, month + 1, 0).getDate();
     const monthDiv = document.createElement('div');
     monthDiv.className = 'month';
+
     monthDiv.innerHTML = \`
       <div class="month-top">
         <div class="month-cal-title">2026年行事历</div>
@@ -647,16 +1104,20 @@ function renderCalendar() {
       </div>
       <div class="week">\${weeks.map(day => \`<div>\${day}</div>\`).join('')}</div>
     \`;
+
     const daysDiv = document.createElement('div');
     daysDiv.className = 'days';
+
     for (let i = 0; i < firstDay; i++) {
       daysDiv.innerHTML += '<div class="day empty"></div>';
     }
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = \`\${month + 1}-\${day}\`;
       const dateData = calendarData[dateKey] || { color: '#FFFFFF', todo: '' };
       const isDark = isDarkColor(dateData.color) ? 'dark' : '';
       const holidayText = holidays[dateKey] ? \`<br><span style="color:#ff3b30">\${holidays[dateKey]}</span>\` : '';
+
       daysDiv.innerHTML += \`
         <div class="day \${isDark}" data-key="\${dateKey}" style="background:\${dateData.color}">
           <div class="num">\${day}</div>
@@ -664,64 +1125,150 @@ function renderCalendar() {
         </div>
       \`;
     }
+
     monthDiv.appendChild(daysDiv);
     calendarEl.appendChild(monthDiv);
+    renderMergeTodos(monthDiv);
   }
+
   bindDayEvents();
 }
+
 function bindDayEvents() {
   const days = document.querySelectorAll('.day:not(.empty)');
+  const mask = document.getElementById('mask');
+  const panel = document.getElementById('panel');
+
   days.forEach(dayEl => {
-    dayEl.addEventListener('click', () => {
-      currentDateKey = dayEl.dataset.key;
-      openEditPanel();
-    });
-    dayEl.addEventListener('touchend', (e) => {
+    dayEl.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      currentDateKey = dayEl.dataset.key;
-      openEditPanel();
+      isSelecting = true;
+      isDragging = false;
+      startDayEl = dayEl;
+      selectedDateKeys = [dayEl.dataset.key];
+      document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+      dayEl.classList.add('selected');
     });
+
+    dayEl.addEventListener('mousemove', (e) => {
+      if (!isSelecting) return;
+      isDragging = true;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
+        const key = target.dataset.key;
+        if (!selectedDateKeys.includes(key)) {
+          selectedDateKeys.push(key);
+          target.classList.add('selected');
+        }
+      }
+    });
+
+    dayEl.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      isSelecting = true;
+      isDragging = false;
+      startDayEl = dayEl;
+      selectedDateKeys = [dayEl.dataset.key];
+      document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+      dayEl.classList.add('selected');
+    });
+
+    dayEl.addEventListener('touchmove', (e) => {
+      if (!isSelecting) return;
+      isDragging = true;
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target.classList.contains('day') && !target.classList.contains('empty')) {
+        const key = target.dataset.key;
+        if (!selectedDateKeys.includes(key)) {
+          selectedDateKeys.push(key);
+          target.classList.add('selected');
+        }
+      }
+    });
+
+    dayEl.addEventListener('mouseup', handleSelectEnd);
+    dayEl.addEventListener('touchend', handleSelectEnd);
+  });
+
+  document.addEventListener('mouseup', handleSelectEnd);
+  document.addEventListener('touchend', handleSelectEnd);
+
+  function handleSelectEnd() {
+    if (!isSelecting) return;
+    isSelecting = false;
+
+    if (isDragging && selectedDateKeys.length > 0) {
+      openEditPanel();
+    } else if (!isDragging && startDayEl) {
+      openEditPanel();
+    }
+
+    isDragging = false;
+    startDayEl = null;
+  }
+
+  mask.addEventListener('click', () => {
+    closeEditPanel();
+    document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+    selectedDateKeys = [];
+  });
+
+  panel.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 }
+
 function openEditPanel() {
   const panel = document.getElementById('panel');
   const mask = document.getElementById('mask');
   const todoInput = document.getElementById('todoText');
   const colorDots = document.querySelectorAll('.color-dot');
+
   todoInput.value = '';
   colorDots.forEach(dot => dot.classList.remove('active'));
   document.querySelector('.color-dot[data-c="#FFFFFF"]').classList.add('active');
+  
   panel.style.display = 'block';
   mask.style.display = 'block';
 }
+
 function closeEditPanel() {
   document.getElementById('panel').style.display = 'none';
   document.getElementById('mask').style.display = 'none';
-  currentDateKey = '';
+  document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+  selectedDateKeys = [];
 }
+
 document.querySelectorAll('.color-dot').forEach(dot => {
   dot.addEventListener('click', () => {
     document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
     dot.classList.add('active');
   });
 });
-document.getElementById('mask').addEventListener('click', closeEditPanel);
-document.getElementById('panel').addEventListener('click', (e) => {
-  e.stopPropagation();
-});
+
+document.getElementById('cancel').addEventListener('click', closeEditPanel);
+
 document.getElementById('apply').addEventListener('click', () => {
-  if (!currentDateKey) return;
+  if (selectedDateKeys.length === 0) return;
+  
   const selectedColor = document.querySelector('.color-dot.active').dataset.c;
   const todoText = document.getElementById('todoText').value.trim();
-  calendarData[currentDateKey] = { color: selectedColor, todo: todoText };
+  
+  selectedDateKeys.forEach(key => {
+    calendarData[key] = { color: selectedColor, todo: todoText };
+  });
   localStorage.setItem('CAL2026_WECHAT', JSON.stringify(calendarData));
+  
   renderCalendar();
   closeEditPanel();
-  showToast('保存成功！');
+  showToast(\`已为\${selectedDateKeys.length}个日期保存事项！\`);
 });
+
 document.getElementById('saveFile').addEventListener('click', () => {
   showToast('此功能在独立文件中可用');
 });
+
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (confirm('确定要清空所有日历数据吗？')) {
     calendarData = {};
@@ -730,6 +1277,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     showToast('数据已清空！');
   }
 });
+
 renderCalendar();
 <\/script>
 </body>
@@ -738,7 +1286,7 @@ renderCalendar();
   const blob = new Blob([fullHTML], { type: 'text/html; charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `2026趣味行事历_${new Date().toLocaleDateString().replace(/\//g, '-')}.html`;
+  a.download = `vollure rose 2026行事历_${new Date().toLocaleDateString().replace(/\//g, '-')}.html`;
   a.click();
   URL.revokeObjectURL(a.href);
   showToast('日历已保存到本地！');
@@ -753,9 +1301,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     showToast('数据已清空！');
   }
 });
-
-// 首次渲染
-renderCalendar();
 </script>
 </body>
 </html>
