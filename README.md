@@ -131,45 +131,29 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.header {
-  text-align: center;
-  padding: 20px 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: #444;
-  position: relative;
-}
-.header::after {
-  content: "";
-  width: 30px;
-  height: 3px;
-  background: #e99da9;
-  border-radius: 2px;
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-}
 
 /* 月份卡片 */
 .month {
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 22px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
-.month-head {
-  padding: 14px 16px;
-  background: #fdfafc;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+/* 月份标题：上方居中 */
 .month-title {
+  text-align: center;
   font-size: 16px;
   font-weight: bold;
   color: #444;
+  padding: 14px 0;
+  background: #fdfafc;
+}
+.month-head {
+  padding: 8px 16px;
+  background: #fdfafc;
+  display: flex;
+  justify: flex-end;
 }
 .btn-clear-month {
   padding: 6px 10px;
@@ -203,12 +187,12 @@ body {
 /* 日期框：圆角矩形 + 5:3比例 */
 .day {
   width: 100%;
-  aspect-ratio: 5/3; /* 核心：宽高比5:3 */
+  aspect-ratio: 5/3;
   padding: 8px 6px;
   background: #fff;
   position: relative;
   cursor: pointer;
-  border-radius: 8px; /* 圆角矩形 */
+  border-radius: 8px;
   overflow: hidden;
 }
 /* 选中状态样式 */
@@ -225,7 +209,7 @@ body {
   position: absolute;
   top: 6px;
   left: 6px;
-  font-size: 18px; /* 原15px +3 */
+  font-size: 18px;
   font-weight: bold;
   color: #333;
 }
@@ -235,12 +219,12 @@ body {
   top: 6px;
   right: 6px;
   font-size: 10px;
-  color: #000000 !important; /* 强制黑色 */
+  color: #000000 !important;
 }
-/* 待办事项 */
+/* 待办事项：与国历空隙加大 */
 .todo {
   position: absolute;
-  top: 28px;
+  top: 36px;
   left: 6px;
   right: 6px;
   bottom: 4px;
@@ -250,7 +234,7 @@ body {
   word-break: break-all;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* 最多显示2行 */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
@@ -388,7 +372,6 @@ body {
 
 <!-- 日历 -->
 <div class="calendar-container" id="main">
-  <div class="header">Vollure Rose 2026年度行事历</div>
   <div id="calendar"></div>
 </div>
 
@@ -488,8 +471,8 @@ function render() {
     const mEl = document.createElement("div");
     mEl.className = "month";
     mEl.innerHTML = `
+      <div class="month-title">Vollure Rose 2026年度行事历-${m}月份</div>
       <div class="month-head">
-        <div class="month-title">${m}月</div>
         <button class="btn-clear-month" onclick="clearMonth(${m})">清空本月</button>
       </div>
       <div class="week">
@@ -520,7 +503,6 @@ function renderMonth(m) {
     const key = `${m}-${d}`;
     const item = data[key] || { color: "#ffffff", todo: "" };
     const lunar = getLunar(m, d);
-    // 判断是否为深色背景
     const colorConfig = COLORS.find(c => c.c === item.color) || { isDark: false };
     const darkClass = colorConfig.isDark ? "dark-text" : "";
     
@@ -544,9 +526,7 @@ function bindDragSelect() {
       e.preventDefault();
       isDragging = true;
       selectedDays = [];
-      // 清除所有选中状态
       document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
-      // 选中当前日期
       selectDay(day);
     });
 
@@ -582,7 +562,6 @@ function bindDragSelect() {
   document.addEventListener("mouseup", endDrag);
   document.addEventListener("touchend", endDrag);
 
-  // 选中日期
   function selectDay(day) {
     if (!day.classList.contains("selected")) {
       day.classList.add("selected");
@@ -593,14 +572,11 @@ function bindDragSelect() {
     }
   }
 
-  // 结束拖动并打开编辑页
   function endDrag() {
     if (isDragging && selectedDays.length > 0) {
       isDragging = false;
-      // 获取月份（取第一个选中日期的月份）
       curMonth = selectedDays[0].split("-")[0];
       curKeys = selectedDays;
-      // 打开编辑页
       const firstKey = selectedDays[0];
       const item = data[firstKey] || { color: "#ffffff", todo: "" };
       document.getElementById("todoInput").value = item.todo;
@@ -611,7 +587,7 @@ function bindDragSelect() {
     isDragging = false;
   }
 
-  // 单机日期（非拖动）
+  // 单击日期
   allDays.forEach(day => {
     day.addEventListener("click", () => {
       if (!isDragging) {
@@ -643,7 +619,6 @@ function buildColors(activeColor) {
     box.innerHTML += html;
   });
 
-  // 绑定颜色选择事件
   document.querySelectorAll(".color-dot").forEach(dot => {
     dot.onclick = () => {
       document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
@@ -659,15 +634,12 @@ document.getElementById("ok").onclick = () => {
   const color = activeDot.dataset.color;
   const todo = document.getElementById("todoInput").value.trim();
   
-  // 保存选中的所有日期
   curKeys.forEach(k => {
     data[k] = { color, todo };
   });
   
   localStorage.setItem("cal_data", JSON.stringify(data));
-  // 重新渲染对应月份
   renderMonth(curMonth);
-  // 重新绑定拖动事件
   bindDragSelect();
   closePop();
   toast(`已为${curKeys.length}个日期保存内容`);
@@ -695,7 +667,6 @@ document.getElementById("mask").onclick = closePop;
 function closePop() {
   document.getElementById("mask").style.display = "none";
   document.getElementById("pop").style.display = "none";
-  // 清除选中状态
   document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
   selectedDays = [];
 }
@@ -729,7 +700,6 @@ document.getElementById("loginBtn").onclick = () => {
 // 页面加载
 window.onload = () => {
   loadRemember();
-  // 防止移动端触摸滚动冲突
   document.addEventListener("touchmove", (e) => {
     if (isDragging) e.preventDefault();
   }, { passive: false });
