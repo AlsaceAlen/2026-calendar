@@ -126,6 +126,8 @@ body {
   animation: pageIn 0.6s ease;
   position: relative;
   z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 @keyframes pageIn {
   from { opacity: 0; }
@@ -140,7 +142,6 @@ body {
   margin-bottom: 22px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
-/* 月份标题：上方居中 */
 .month-title {
   text-align: center;
   font-size: 16px;
@@ -184,7 +185,8 @@ body {
   background: #f0ebe7;
   padding: 2px;
 }
-/* 日期框：圆角矩形 + 5:3比例 */
+
+/* 电脑版：日期框固定 5:3 */
 .day {
   width: 100%;
   aspect-ratio: 5/3;
@@ -195,16 +197,24 @@ body {
   border-radius: 8px;
   overflow: hidden;
 }
-/* 选中状态样式 */
+
+/* 手机版：竖版自适应（取消固定比例，高度自适应） */
+@media (max-width: 768px) {
+  .day {
+    aspect-ratio: auto;
+    min-height: 80px;
+    height: auto;
+    padding-bottom: 12px;
+  }
+}
+
 .day.selected {
   border: 2px solid #e99da9;
 }
-/* 深色背景文字变白 */
 .day.dark-text .num, 
 .day.dark-text .todo {
   color: #ffffff !important;
 }
-/* 国历（左上角，字号+3） */
 .num {
   position: absolute;
   top: 6px;
@@ -213,7 +223,6 @@ body {
   font-weight: bold;
   color: #333;
 }
-/* 农历（右上角，黑色） */
 .lunar {
   position: absolute;
   top: 6px;
@@ -221,7 +230,6 @@ body {
   font-size: 10px;
   color: #000000 !important;
 }
-/* 待办事项：与国历空隙加大 */
 .todo {
   position: absolute;
   top: 36px;
@@ -347,11 +355,9 @@ body {
 </style>
 </head>
 <body>
-<!-- 趣味装饰 -->
 <div class="decoration-1"></div>
 <div class="decoration-2"></div>
 
-<!-- 登录 -->
 <div class="login-page" id="loginPage">
   <div class="login-title">Vollure Rose</div>
   <div class="login-sub">2026年度行事历</div>
@@ -370,12 +376,10 @@ body {
   <button class="login-btn" id="loginBtn">登录</button>
 </div>
 
-<!-- 日历 -->
 <div class="calendar-container" id="main">
   <div id="calendar"></div>
 </div>
 
-<!-- 弹窗 -->
 <div class="mask" id="mask"></div>
 <div class="pop" id="pop">
   <div class="pop-title">编辑待办</div>
@@ -396,7 +400,6 @@ const YEAR = 2026;
 const USER = "rose001";
 const PWD = "123456";
 
-// 颜色配置（新增深色标记）
 const COLORS = [
   { c: "#ffffff", name: "白色", isDark: false },
   { c: "#b86b77", name: "陈酒红", isDark: true },
@@ -409,9 +412,10 @@ const COLORS = [
   { c: "#f7c8d0", name: "泡沫粉", isDark: false }
 ];
 
-// 拖动选中相关变量
 let isDragging = false;
 let selectedDays = [];
+let data = JSON.parse(localStorage.getItem("cal_data")) || {};
+let curMonth, curKeys;
 
 // ==================== 工具 ====================
 function toast(txt) {
@@ -433,6 +437,16 @@ function getLunar(month, day) {
   const idx = (sum + day + 8) % 30 + 1;
   return ld[idx] || "";
 }
+
+// ==================== 自动保存 ====================
+function autoSave() {
+  localStorage.setItem("cal_data", JSON.stringify(data));
+}
+
+// 页面离开前自动保存
+window.addEventListener("beforeunload", () => {
+  autoSave();
+});
 
 // ==================== 登录记忆 ====================
 function loadRemember() {
@@ -459,10 +473,6 @@ function saveRemember() {
   localStorage.setItem("cal_remember", JSON.stringify({ user, pwd, exp }));
 }
 
-// ==================== 数据 ====================
-let data = JSON.parse(localStorage.getItem("cal_data")) || {};
-let curMonth, curKeys;
-
 // ==================== 渲染 ====================
 function render() {
   const cal = document.getElementById("calendar");
@@ -483,7 +493,6 @@ function render() {
     cal.appendChild(mEl);
     renderMonth(m);
   }
-  // 绑定拖动选中事件
   bindDragSelect();
 }
 
@@ -493,12 +502,10 @@ function renderMonth(m) {
   const first = new Date(YEAR, m-1, 1).getDay();
   const days = new Date(YEAR, m, 0).getDate();
   
-  // 填充月初空白
   for (let i=0; i<first; i++) {
     box.innerHTML += `<div class="day empty"></div>`;
   }
   
-  // 填充日期
   for (let d=1; d<=days; d++) {
     const key = `${m}-${d}`;
     const item = data[key] || { color: "#ffffff", todo: "" };
@@ -520,7 +527,6 @@ function renderMonth(m) {
 function bindDragSelect() {
   const allDays = document.querySelectorAll(".day:not(.empty)");
   
-  // 鼠标端
   allDays.forEach(day => {
     day.addEventListener("mousedown", (e) => {
       e.preventDefault();
@@ -531,13 +537,10 @@ function bindDragSelect() {
     });
 
     day.addEventListener("mouseenter", () => {
-      if (isDragging) {
-        selectDay(day);
-      }
+      if (isDragging) selectDay(day);
     });
   });
 
-  // 移动端触屏
   allDays.forEach(day => {
     day.addEventListener("touchstart", (e) => {
       e.preventDefault();
@@ -558,7 +561,6 @@ function bindDragSelect() {
     });
   });
 
-  // 结束拖动
   document.addEventListener("mouseup", endDrag);
   document.addEventListener("touchend", endDrag);
 
@@ -566,9 +568,7 @@ function bindDragSelect() {
     if (!day.classList.contains("selected")) {
       day.classList.add("selected");
       const key = day.dataset.key;
-      if (key && !selectedDays.includes(key)) {
-        selectedDays.push(key);
-      }
+      if (key && !selectedDays.includes(key)) selectedDays.push(key);
     }
   }
 
@@ -587,7 +587,6 @@ function bindDragSelect() {
     isDragging = false;
   }
 
-  // 单击日期
   allDays.forEach(day => {
     day.addEventListener("click", () => {
       if (!isDragging) {
@@ -627,7 +626,6 @@ function buildColors(activeColor) {
   });
 }
 
-// 确定保存
 document.getElementById("ok").onclick = () => {
   const activeDot = document.querySelector(".color-dot.active");
   if (!activeDot) return;
@@ -638,30 +636,24 @@ document.getElementById("ok").onclick = () => {
     data[k] = { color, todo };
   });
   
-  localStorage.setItem("cal_data", JSON.stringify(data));
+  autoSave();
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
   toast(`已为${curKeys.length}个日期保存内容`);
 };
 
-// 清除当前选中日期内容
 document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空选中日期的内容？")) return;
-  curKeys.forEach(k => {
-    delete data[k];
-  });
-  localStorage.setItem("cal_data", JSON.stringify(data));
+  curKeys.forEach(k => delete data[k]);
+  autoSave();
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
   toast(`已清空${curKeys.length}个日期内容`);
 };
 
-// 取消
 document.getElementById("cancel").onclick = closePop;
-
-// 点击遮罩关闭
 document.getElementById("mask").onclick = closePop;
 
 function closePop() {
@@ -677,7 +669,7 @@ function clearMonth(m) {
   for (let k in data) {
     if (k.split("-")[0] == m) delete data[k];
   }
-  localStorage.setItem("cal_data", JSON.stringify(data));
+  autoSave();
   renderMonth(m);
   bindDragSelect();
   toast(`${m}月已清空`);
@@ -697,7 +689,6 @@ document.getElementById("loginBtn").onclick = () => {
   }
 };
 
-// 页面加载
 window.onload = () => {
   loadRemember();
   document.addEventListener("touchmove", (e) => {
