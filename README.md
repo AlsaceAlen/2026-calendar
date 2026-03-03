@@ -15,7 +15,6 @@ body {
   background: #faf8fd;
   padding: 8px;
   position: relative;
-  /* 禁止整体页面横向滚动 */
   overflow-x: hidden;
 }
 
@@ -122,7 +121,76 @@ body {
   font-weight: 500;
 }
 
-/* 主界面 - 核心：手机端单月占4/5屏幕 */
+/* 新增：月份选择页面 */
+.month-select-page {
+  display: none;
+  animation: fadeIn 0.5s ease;
+  position: relative;
+  z-index: 2;
+  max-width: 90%;
+  margin: 40px auto;
+  padding: 20px;
+}
+.month-select-title {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+/* 12个月网格：2行6列，满屏自适应 */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  max-width: 100%;
+}
+@media (min-width: 768px) {
+  .month-grid {
+    grid-template-columns: repeat(6, 1fr); /* 电脑端固定6列 */
+  }
+}
+/* 月份卡片缩略图 */
+.month-card-thumb {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+.month-card-thumb:hover {
+  transform: scale(1.05);
+}
+.month-thumb-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 10px;
+}
+/* 月份缩略日历 */
+.month-thumb-cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.thumb-day {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 3px;
+  background: #f0ebe7;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 有标记的日期显示对应色块 */
+.thumb-day.marked {
+  border: 1px solid #e99da9;
+}
+
+/* 主日历界面 - 新增缩放控制栏 */
 .calendar-container {
   display: none;
   animation: pageIn 0.6s ease;
@@ -132,7 +200,28 @@ body {
   max-width: none;
   margin: 0 auto;
   padding: 0 4px;
+  transform-origin: top center; /* 缩放原点：顶部居中 */
 }
+/* 缩放控制栏 */
+.zoom-control {
+  padding: 10px 12px;
+  text-align: center;
+  background: #fff;
+  border-radius: 10px;
+  margin: 0 auto 15px;
+  max-width: 80%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.zoom-slider {
+  width: 80%;
+  margin: 10px auto;
+  accent-color: #e99da9;
+}
+.zoom-level {
+  font-size: 12px;
+  color: #666;
+}
+
 @keyframes pageIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -143,15 +232,14 @@ body {
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  margin: 0 auto 20px; /* 居中+底部间距 */
+  margin: 0 auto 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  /* 核心：手机端4/5屏幕宽度，电脑端自适应 */
   width: 95%;
   max-width: 800px;
 }
 @media (max-width: 768px) {
   .month {
-    width: 80%; /* 4/5屏幕宽度 */
+    width: 80%;
     margin: 0 auto 25px;
   }
 }
@@ -164,13 +252,28 @@ body {
   padding: 12px 0;
   background: #fdfafc;
 }
-/* 月份操作栏：清空+保存按钮并排 */
+/* 月份操作栏：返回+清空+保存按钮 */
 .month-head {
   padding: 8px 12px;
   background: #fdfafc;
   display: flex;
-  justify-content: flex-end;
-  gap: 8px; /* 按钮间距 */
+  justify-content: space-between;
+  gap: 8px;
+}
+/* 返回按钮 - 靠左 */
+.btn-back {
+  padding: 6px 10px;
+  font-size: 11px;
+  background: #f1eeeb;
+  color: #666;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* 清空+保存按钮容器 - 靠右 */
+.month-actions {
+  display: flex;
+  gap: 8px;
 }
 .btn-clear-month, .btn-save-month {
   padding: 6px 10px;
@@ -209,7 +312,7 @@ body {
   padding: 1px;
 }
 
-/* 日期框样式 - 核心适配待办4-14字完整显示 */
+/* 日期框样式 - 恢复拖动多选 + 适配待办显示 */
 .day {
   width: 100%;
   aspect-ratio: 5/3;
@@ -219,29 +322,28 @@ body {
   cursor: pointer;
   border-radius: 6px;
   overflow: hidden;
-  /* 确保最小尺寸 */
   min-height: 60px;
 }
 
-/* 手机端日期框：增大高度+适配14字完整显示 */
+/* 手机端日期框 */
 @media (max-width: 768px) {
   .day {
     aspect-ratio: auto;
-    min-height: 90px; /* 增大高度 */
+    min-height: 90px;
     height: auto;
     padding: 10px 8px;
   }
-  /* 待办事项：适配14字完整显示 */
   .todo {
     font-size: 14px !important;
     line-height: 1.4 !important;
-    -webkit-line-clamp: unset !important; /* 取消行数限制 */
+    -webkit-line-clamp: unset !important;
     height: auto !important;
     top: 38px !important;
     bottom: 8px !important;
   }
 }
 
+/* 选中状态样式恢复 */
 .day.selected {
   border: 2px solid #e99da9;
 }
@@ -274,7 +376,7 @@ body {
   text-align: center;
 }
 
-/* 待办事项：核心适配4-14字完整显示 */
+/* 待办事项 */
 .todo {
   position: absolute;
   top: 32px;
@@ -287,7 +389,7 @@ body {
   word-break: break-all;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* 电脑端最多3行 */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
@@ -403,6 +505,7 @@ body {
 <div class="decoration-1"></div>
 <div class="decoration-2"></div>
 
+<!-- 登录页 -->
 <div class="login-page" id="loginPage">
   <div class="login-title">Vollure Rose</div>
   <div class="login-sub">2026年度行事历</div>
@@ -421,7 +524,19 @@ body {
   <button class="login-btn" id="loginBtn">登录</button>
 </div>
 
+<!-- 新增：月份选择页面 -->
+<div class="month-select-page" id="monthSelectPage">
+  <div class="month-select-title">选择月份</div>
+  <div class="month-grid" id="monthGrid"></div>
+</div>
+
+<!-- 主日历界面 -->
 <div class="calendar-container" id="main">
+  <!-- 新增：缩放控制栏 -->
+  <div class="zoom-control">
+    <div class="zoom-level">当前缩放：<span id="zoomValue">100%</span></div>
+    <input type="range" min="25" max="100" step="25" value="100" class="zoom-slider" id="zoomSlider">
+  </div>
   <div id="calendar"></div>
 </div>
 
@@ -457,12 +572,16 @@ const COLORS = [
   { c: "#f7c8d0", name: "泡沫粉", isDark: false }
 ];
 
-// 拖动选中相关变量 - 新增滑动判定
+// 拖动选中相关变量
 let isDragging = false;
 let selectedDays = [];
 let touchStartX = 0;
 let touchStartY = 0;
-const SWIPE_THRESHOLD = 10; // 滑动判定阈值（像素）
+const SWIPE_THRESHOLD = 10;
+
+// 缩放相关变量
+let currentZoom = 100; // 默认100%
+let currentViewMonth = null; // 当前显示的月份
 
 let data = JSON.parse(localStorage.getItem("cal_data_vollure_rose_2026")) || {};
 let curMonth, curKeys;
@@ -501,7 +620,7 @@ function autoSave() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// 新增：手动保存本月数据
+// 手动保存本月数据
 function saveMonthData(month) {
   autoSave();
   toast(`${month}月数据已手动保存`);
@@ -513,7 +632,12 @@ function syncData() {
   const latestData = JSON.parse(stored);
   if (JSON.stringify(data) !== JSON.stringify(latestData)) {
     data = latestData;
-    render();
+    // 更新月份选择页面的缩略图
+    renderMonthSelectPage();
+    // 如果当前在日历页面，更新当前月份
+    if (currentViewMonth) {
+      renderSingleMonth(currentViewMonth);
+    }
     toast("数据已同步");
   }
 }
@@ -522,6 +646,142 @@ window.addEventListener("beforeunload", () => {
   autoSave();
   if (syncInterval) clearInterval(syncInterval);
 });
+
+// ==================== 新增：月份选择页面 ====================
+// 渲染月份选择页面（12个月缩略图）
+function renderMonthSelectPage() {
+  const monthGrid = document.getElementById("monthGrid");
+  monthGrid.innerHTML = "";
+  
+  for (let m = 1; m <= 12; m++) {
+    const monthCard = document.createElement("div");
+    monthCard.className = "month-card-thumb";
+    monthCard.dataset.month = m;
+    
+    // 构建月份缩略日历
+    let thumbCalHtml = "";
+    const firstDay = new Date(YEAR, m-1, 1).getDay();
+    const daysInMonth = new Date(YEAR, m, 0).getDate();
+    
+    // 填充月初空白
+    for (let i=0; i<firstDay; i++) {
+      thumbCalHtml += `<div class="thumb-day"></div>`;
+    }
+    
+    // 填充日期（显示有标记的日期色块）
+    for (let d=1; d<=daysInMonth; d++) {
+      const key = `${m}-${d}`;
+      const hasMark = data[key] && (data[key].todo || data[key].color !== "#ffffff");
+      const dayClass = hasMark ? "thumb-day marked" : "thumb-day";
+      thumbCalHtml += `<div class="${dayClass}" style="${hasMark ? `background:${data[key].color || '#ffffff'}` : ''}"></div>`;
+    }
+    
+    // 月份卡片内容
+    monthCard.innerHTML = `
+      <div class="month-thumb-title">${m}月份</div>
+      <div class="month-thumb-cal">${thumbCalHtml}</div>
+    `;
+    
+    // 点击月份卡片进入对应月份详情
+    monthCard.addEventListener("click", () => {
+      showSingleMonth(m);
+    });
+    
+    monthGrid.appendChild(monthCard);
+  }
+}
+
+// 显示单个月份详情
+function showSingleMonth(month) {
+  currentViewMonth = month;
+  // 隐藏月份选择页，显示日历页
+  document.getElementById("monthSelectPage").style.display = "none";
+  document.getElementById("main").style.display = "block";
+  // 渲染单个月份
+  renderSingleMonth(month);
+  // 重置缩放
+  setZoom(100);
+  document.getElementById("zoomSlider").value = 100;
+  document.getElementById("zoomValue").textContent = "100%";
+}
+
+// 渲染单个月份
+function renderSingleMonth(month) {
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+  
+  const mEl = document.createElement("div");
+  mEl.className = "month";
+  mEl.innerHTML = `
+    <div class="month-title">Vollure Rose 2026年度行事历-${month}月份</div>
+    <div class="month-head">
+      <button class="btn-back" onclick="backToMonthSelect()">返回</button>
+      <div class="month-actions">
+        <button class="btn-clear-month" onclick="clearMonth(${month})">清空本月</button>
+        <button class="btn-save-month" onclick="saveMonthData(${month})">保存本月</button>
+      </div>
+    </div>
+    <div class="week">
+      <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+    </div>
+    <div class="days" id="days-${month}"></div>
+  `;
+  calendar.appendChild(mEl);
+  
+  // 渲染日期
+  const box = document.getElementById(`days-${month}`);
+  box.innerHTML = "";
+  const first = new Date(YEAR, month-1, 1).getDay();
+  const days = new Date(YEAR, month, 0).getDate();
+  
+  for (let i=0; i<first; i++) {
+    box.innerHTML += `<div class="day empty"></div>`;
+  }
+  
+  for (let d=1; d<=days; d++) {
+    const key = `${month}-${d}`;
+    const item = data[key] || { color: "#ffffff", todo: "" };
+    const lunar = getLunar(month, d);
+    const colorConfig = COLORS.find(c => c.c === item.color) || { isDark: false };
+    const darkClass = colorConfig.isDark ? "dark-text" : "";
+    
+    box.innerHTML += `
+      <div class="day ${darkClass}" data-key="${key}" style="background:${item.color}">
+        <div class="num">${d}</div>
+        <div class="lunar">${lunar}</div>
+        <div class="todo">${item.todo}</div>
+      </div>
+    `;
+  }
+  
+  // 绑定拖动选中事件
+  bindDragSelect();
+}
+
+// 返回月份选择页面
+function backToMonthSelect() {
+  document.getElementById("main").style.display = "none";
+  document.getElementById("monthSelectPage").style.display = "block";
+  // 刷新月份缩略图（同步最新数据）
+  renderMonthSelectPage();
+}
+
+// ==================== 新增：缩放功能 ====================
+function setZoom(percent) {
+  currentZoom = percent;
+  const scale = percent / 100;
+  document.getElementById("main").style.transform = `scale(${scale})`;
+  document.getElementById("zoomValue").textContent = `${percent}%`;
+}
+
+// 绑定缩放滑块事件
+function bindZoomEvent() {
+  const slider = document.getElementById("zoomSlider");
+  slider.addEventListener("input", (e) => {
+    const value = parseInt(e.target.value);
+    setZoom(value);
+  });
+}
 
 // ==================== 登录记忆 ====================
 function loadRemember() {
@@ -548,63 +808,11 @@ function saveRemember() {
   localStorage.setItem("cal_remember", JSON.stringify({ user, pwd, exp }));
 }
 
-// ==================== 渲染 ====================
-function render() {
-  const cal = document.getElementById("calendar");
-  cal.innerHTML = "";
-  for (let m = 1; m <= 12; m++) {
-    const mEl = document.createElement("div");
-    mEl.className = "month";
-    // 新增：保存按钮
-    mEl.innerHTML = `
-      <div class="month-title">Vollure Rose 2026年度行事历-${m}月份</div>
-      <div class="month-head">
-        <button class="btn-clear-month" onclick="clearMonth(${m})">清空本月</button>
-        <button class="btn-save-month" onclick="saveMonthData(${m})">保存本月</button>
-      </div>
-      <div class="week">
-        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-      </div>
-      <div class="days" id="days-${m}"></div>
-    `;
-    cal.appendChild(mEl);
-    renderMonth(m);
-  }
-  bindDragSelect();
-}
-
-function renderMonth(m) {
-  const box = document.getElementById(`days-${m}`);
-  box.innerHTML = "";
-  const first = new Date(YEAR, m-1, 1).getDay();
-  const days = new Date(YEAR, m, 0).getDate();
-  
-  for (let i=0; i<first; i++) {
-    box.innerHTML += `<div class="day empty"></div>`;
-  }
-  
-  for (let d=1; d<=days; d++) {
-    const key = `${m}-${d}`;
-    const item = data[key] || { color: "#ffffff", todo: "" };
-    const lunar = getLunar(m, d);
-    const colorConfig = COLORS.find(c => c.c === item.color) || { isDark: false };
-    const darkClass = colorConfig.isDark ? "dark-text" : "";
-    
-    box.innerHTML += `
-      <div class="day ${darkClass}" data-key="${key}" style="background:${item.color}">
-        <div class="num">${d}</div>
-        <div class="lunar">${lunar}</div>
-        <div class="todo">${item.todo}</div>
-      </div>
-    `;
-  }
-}
-
-// ==================== 拖动选中功能 - 新增滑动判定 ====================
+// ==================== 恢复：拖动选中功能 ====================
 function bindDragSelect() {
   const allDays = document.querySelectorAll(".day:not(.empty)");
   
-  // 鼠标端：保持原有逻辑
+  // 鼠标端：恢复完整拖动多选
   allDays.forEach(day => {
     day.addEventListener("mousedown", (e) => {
       e.preventDefault();
@@ -615,73 +823,72 @@ function bindDragSelect() {
     });
 
     day.addEventListener("mouseenter", () => {
-      if (isDragging) selectDay(day);
+      if (isDragging) {
+        selectDay(day);
+      }
     });
   });
 
-  // 移动端：新增滑动判定，区分滑动和拖动
+  // 移动端：恢复拖动多选 + 滑动判定
   allDays.forEach(day => {
     day.addEventListener("touchstart", (e) => {
-      // 记录触摸起始位置
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-      isDragging = false; // 初始设为false，需判定不是滑动
-      
-      // 清除之前的选中状态
-      document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
+      isDragging = true; // 恢复默认拖动状态
       selectedDays = [];
+      document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
+      selectDay(day);
     });
 
     day.addEventListener("touchmove", (e) => {
-      // 计算滑动距离
       const touchX = e.touches[0].clientX;
       const touchY = e.touches[0].clientY;
       const diffX = Math.abs(touchX - touchStartX);
       const diffY = Math.abs(touchY - touchStartY);
       
-      // 如果滑动距离超过阈值，判定为滑动，不触发选中
+      // 滑动阈值判定：超过则取消拖动
       if (diffX > SWIPE_THRESHOLD || diffY > SWIPE_THRESHOLD) {
         isDragging = false;
         return;
       }
       
-      // 否则判定为拖动选中
-      isDragging = true;
-      const target = document.elementFromPoint(touchX, touchY);
-      if (target && target.classList.contains("day") && !target.classList.contains("empty")) {
-        selectDay(target);
+      // 恢复拖动多选
+      if (isDragging) {
+        const target = document.elementFromPoint(touchX, touchY);
+        if (target && target.classList.contains("day") && !target.classList.contains("empty")) {
+          selectDay(target);
+        }
       }
-    });
-
-    // 触摸结束：处理最终选中
-    day.addEventListener("touchend", (e) => {
-      if (!isDragging) return;
-      
-      // 如果只有一个选中，打开编辑弹窗
-      if (selectedDays.length === 1) {
-        curMonth = selectedDays[0].split("-")[0];
-        curKeys = selectedDays;
-        const item = data[selectedDays[0]] || { color: "#ffffff", todo: "" };
-        document.getElementById("todoInput").value = item.todo;
-        buildColors(item.color);
-        document.getElementById("mask").style.display = "block";
-        document.getElementById("pop").style.display = "block";
-      }
-      
-      // 重置状态
-      isDragging = false;
-      touchStartX = 0;
-      touchStartY = 0;
     });
   });
 
-  // 通用选中逻辑
+  // 通用结束拖动处理
+  document.addEventListener("mouseup", endDrag);
+  document.addEventListener("touchend", endDrag);
+
   function selectDay(day) {
     if (!day.classList.contains("selected")) {
       day.classList.add("selected");
       const key = day.dataset.key;
-      if (key && !selectedDays.includes(key)) selectedDays.push(key);
+      if (key && !selectedDays.includes(key)) {
+        selectedDays.push(key);
+      }
     }
+  }
+
+  function endDrag() {
+    if (isDragging && selectedDays.length > 0) {
+      isDragging = false;
+      curMonth = selectedDays[0].split("-")[0];
+      curKeys = selectedDays;
+      const firstKey = selectedDays[0];
+      const item = data[firstKey] || { color: "#ffffff", todo: "" };
+      document.getElementById("todoInput").value = item.todo;
+      buildColors(item.color);
+      document.getElementById("mask").style.display = "block";
+      document.getElementById("pop").style.display = "block";
+    }
+    isDragging = false;
   }
 
   // 单机/单点日期
@@ -698,21 +905,6 @@ function bindDragSelect() {
         document.getElementById("pop").style.display = "block";
       }
     });
-  });
-
-  // 鼠标端结束拖动
-  document.addEventListener("mouseup", () => {
-    if (isDragging && selectedDays.length > 0) {
-      curMonth = selectedDays[0].split("-")[0];
-      curKeys = selectedDays;
-      const firstKey = selectedDays[0];
-      const item = data[firstKey] || { color: "#ffffff", todo: "" };
-      document.getElementById("todoInput").value = item.todo;
-      buildColors(item.color);
-      document.getElementById("mask").style.display = "block";
-      document.getElementById("pop").style.display = "block";
-    }
-    isDragging = false;
   });
 }
 
@@ -750,7 +942,7 @@ document.getElementById("ok").onclick = () => {
   });
   
   autoSave();
-  renderMonth(curMonth);
+  renderSingleMonth(curMonth); // 刷新当前月份
   bindDragSelect();
   closePop();
   toast(`已保存${curKeys.length}个日期`);
@@ -760,7 +952,7 @@ document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空选中日期的内容？")) return;
   curKeys.forEach(k => delete data[k]);
   autoSave();
-  renderMonth(curMonth);
+  renderSingleMonth(curMonth); // 刷新当前月份
   bindDragSelect();
   closePop();
   toast(`已清空${curKeys.length}个日期`);
@@ -783,7 +975,7 @@ function clearMonth(m) {
     if (k.split("-")[0] == m) delete data[k];
   }
   autoSave();
-  renderMonth(m);
+  renderSingleMonth(m); // 刷新当前月份
   bindDragSelect();
   toast(`${m}月已清空`);
 }
@@ -795,9 +987,14 @@ document.getElementById("loginBtn").onclick = () => {
   if (u === USER && p === PWD) {
     saveRemember();
     initData();
+    // 隐藏登录页，显示月份选择页
     document.getElementById("loginPage").style.display = "none";
-    document.getElementById("main").style.display = "block";
-    render();
+    document.getElementById("monthSelectPage").style.display = "block";
+    // 渲染月份选择页面
+    renderMonthSelectPage();
+    // 绑定缩放事件
+    bindZoomEvent();
+    // 启动实时同步
     syncInterval = setInterval(syncData, 2000);
   } else {
     toast("账号或密码错误");
@@ -807,7 +1004,6 @@ document.getElementById("loginBtn").onclick = () => {
 // 页面加载
 window.onload = () => {
   loadRemember();
-  // 允许页面垂直滚动，不阻止默认行为
   document.addEventListener("touchmove", (e) => {}, { passive: true });
 };
 </script>
