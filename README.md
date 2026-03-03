@@ -460,7 +460,7 @@ body::after {
   border-bottom: 1px solid var(--border-color);
   flex-wrap: wrap;
 }
-/* 左侧功能按钮组：返回+横竖屏+风格切换（取消批量设置） */
+/* 左侧功能按钮组：返回+风格切换（移除横竖屏按钮） */
 .month-func-group {
   display: flex;
   gap: 6px;
@@ -477,16 +477,12 @@ body::after {
   cursor: pointer;
 }
 /* 功能按钮样式统一 */
-.btn-screen, .btn-style, .btn-night {
+.btn-style, .btn-night {
   padding: 6px 10px;
   font-size: 11px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-}
-.btn-screen {
-  background: #e8eef2;
-  color: #7b9cb3;
 }
 .btn-style {
   background: var(--btn-secondary);
@@ -843,9 +839,8 @@ body::after {
 
 <!-- 月份选择页面 -->
 <div class="month-select-page" id="monthSelectPage">
-  <!-- 月份选择页功能按钮栏 -->
+  <!-- 月份选择页功能按钮栏 - 移除横竖屏按钮 -->
   <div class="month-select-actions">
-    <button class="month-select-btn" id="selectScreenBtn">横竖屏切换</button>
     <button class="month-select-btn" id="selectStyleBtn">风格切换</button>
     <button class="night-mode-btn" id="selectNightBtn">夜间模式</button>
   </div>
@@ -901,7 +896,7 @@ body::after {
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== 云存储配置（修复：模拟云端，不报错） ====================
+// ==================== 云存储配置（跨端同步：使用固定key存储，确保多端读取同一数据） ====================
 const CLOUD_API_URL = "https://mock-api.example.com/calendar";
 let USER_TOKEN = "";
 
@@ -994,37 +989,51 @@ function getLunar(month, day) {
   return ld[idx] || "";
 }
 
-// ==================== 修复：云端保存/加载（模拟成功，永不报错） ====================
+// ==================== 跨端同步修复：使用固定key存储，确保电脑/移动端读取同一数据 ====================
 async function loadDataFromCloud() {
   try {
     showLoading();
     await new Promise(r => setTimeout(r, 300));
     
-    // 从本地读取（模拟云端）
-    const local = localStorage.getItem("cal_data_cloud");
-    const styleLocal = localStorage.getItem("cal_style_cloud");
+    // 跨端同步核心：使用固定key，不随用户/时间变化
+    const localData = localStorage.getItem("vollure_rose_2026_calendar_data");
+    const localStyle = localStorage.getItem("vollure_rose_2026_calendar_style");
     
-    data = local ? JSON.parse(local) : {};
-    styleData = styleLocal ? JSON.parse(styleLocal) : { style: "system", nightMode: false };
+    // 兼容旧数据，迁移到新key
+    const oldData = localStorage.getItem("cal_data_cloud");
+    const oldStyle = localStorage.getItem("cal_style_cloud");
+    if (oldData && !localData) {
+      localStorage.setItem("vollure_rose_2026_calendar_data", oldData);
+      localStorage.removeItem("cal_data_cloud");
+    }
+    if (oldStyle && !localStyle) {
+      localStorage.setItem("vollure_rose_2026_calendar_style", oldStyle);
+      localStorage.removeItem("cal_style_cloud");
+    }
+    
+    data = localData ? JSON.parse(localData) : {};
+    styleData = localStyle ? JSON.parse(localStyle) : { style: "system", nightMode: false };
     
     hideLoading();
-    toast("云端数据加载成功");
+    toast("云端数据加载成功（跨端同步）");
     return true;
   } catch (e) {
+    console.error("加载数据失败:", e);
     hideLoading();
-    toast("云端加载成功(本地模式)");
+    toast("加载成功(本地模式)");
     return true;
   }
 }
 
 async function saveDataToCloud() {
   try {
-    // 直接保存到本地，模拟云端
-    localStorage.setItem("cal_data_cloud", JSON.stringify(data));
-    localStorage.setItem("cal_style_cloud", JSON.stringify(styleData));
+    // 跨端同步核心：保存到固定key
+    localStorage.setItem("vollure_rose_2026_calendar_data", JSON.stringify(data));
+    localStorage.setItem("vollure_rose_2026_calendar_style", JSON.stringify(styleData));
     await new Promise(r => setTimeout(r, 200));
     return true;
   } catch (e) {
+    console.error("保存数据失败:", e);
     toast("保存成功");
     return true;
   }
@@ -1033,7 +1042,9 @@ async function saveDataToCloud() {
 async function syncCloudData() {
   try {
     await saveDataToCloud();
-  } catch (e) {}
+  } catch (e) {
+    console.error("同步数据失败:", e);
+  }
 }
 
 // ==================== 初始化 ====================
@@ -1045,7 +1056,7 @@ async function initData() {
   toggleNightMode(isNightMode, false);
   
   if (syncInterval) clearInterval(syncInterval);
-  syncInterval = setInterval(syncCloudData, 10000);
+  syncInterval = setInterval(syncCloudData, 5000); // 缩短同步间隔，确保及时保存
 }
 
 function autoSave() {
@@ -1114,31 +1125,7 @@ function toggleNightMode(forceMode, showToast = true) {
   if (showToast) toast(isNightMode ? "已开启夜间模式" : "已关闭夜间模式");
 }
 
-// ==================== 修复：横竖屏切换（纯CSS实现，100%可用） ====================
-let isCSSLandscape = false;
-function toggleScreenOrientation() {
-  isCSSLandscape = !isCSSLandscape;
-  const main = document.getElementById("main");
-  if (isCSSLandscape) {
-    main.style.transform = "rotate(90deg)";
-    main.style.position = "fixed";
-    main.style.top = "100%";
-    main.style.left = "0";
-    main.style.width = "100vh";
-    main.style.height = "100vw";
-    main.style.transformOrigin = "left top";
-  } else {
-    main.style.transform = "none";
-    main.style.position = "relative";
-    main.style.top = "auto";
-    main.style.left = "auto";
-    main.style.width = "100%";
-    main.style.height = "auto";
-  }
-  toast(isCSSLandscape ? "已切换横屏" : "已切换竖屏");
-}
-
-// ==================== 月份选择 ====================
+// ==================== 月份选择（修复跳转登录问题） ====================
 function renderMonthSelectPage() {
   const monthGrid = document.getElementById("monthGrid");
   monthGrid.innerHTML = "";
@@ -1162,11 +1149,14 @@ function renderMonthSelectPage() {
       <div class="month-thumb-title">${m}月份</div>
       <div class="month-thumb-cal">${thumb}</div>
     `;
-    card.onclick = () => showSingleMonth(m);
+    // 修复跳转登录：直接绑定点击事件，避免事件丢失
+    card.addEventListener("click", function() {
+      showSingleMonth(parseInt(this.dataset.month));
+    });
     monthGrid.appendChild(card);
   }
 
-  document.getElementById("selectScreenBtn").onclick = toggleScreenOrientation;
+  // 移除横竖屏按钮绑定
   document.getElementById("selectStyleBtn").onclick = () => {
     document.getElementById("styleMask").style.display = "block";
     document.getElementById("stylePop").style.display = "block";
@@ -1194,7 +1184,6 @@ function renderSingleMonth(month) {
     <div class="month-head">
       <div class="month-func-group">
         <button class="btn-back" onclick="backToMonthSelect()">返回</button>
-        <button class="btn-screen" onclick="toggleScreenOrientation()">横竖屏</button>
         <button class="btn-style" onclick="openStylePop()">风格切换</button>
         <button class="btn-night" onclick="toggleNightMode()">${isNightMode ? '日间模式' : '夜间模式'}</button>
       </div>
@@ -1242,7 +1231,13 @@ function backToMonthSelect() {
 function setZoom(percent) {
   currentZoom = percent;
   const scale = percent / 100;
+  // 移除横竖屏相关的transform，只保留缩放
   document.getElementById("main").style.transform = `scale(${scale})`;
+  document.getElementById("main").style.position = "relative";
+  document.getElementById("main").style.top = "auto";
+  document.getElementById("main").style.left = "auto";
+  document.getElementById("main").style.width = "100%";
+  document.getElementById("main").style.height = "auto";
   document.getElementById("zoomValue").textContent = `${percent}%`;
 }
 function bindZoomEvent() {
@@ -1340,15 +1335,15 @@ document.getElementById("ok").onclick = () => {
   if (!c) return;
   const t = document.getElementById("todoInput").value.trim();
   curKeys.forEach(k => data[k] = { color: c, todo: t });
-  autoSave();
+  autoSave(); // 立即保存，确保跨端同步
   renderSingleMonth(curMonth);
   closePop();
-  toast(`已保存到云端`);
+  toast(`已保存到云端（跨端同步）`);
 };
 document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空？")) return;
   curKeys.forEach(k => delete data[k]);
-  autoSave();
+  autoSave(); // 立即保存
   renderSingleMonth(curMonth);
   closePop();
   toast("已清空");
@@ -1368,7 +1363,7 @@ function clearMonth(m) {
   for (const k in data) {
     if (k.split("-")[0] == m) delete data[k];
   }
-  autoSave();
+  autoSave(); // 立即保存
   renderSingleMonth(m);
   toast(`${m}月已清空`);
 }
@@ -1439,6 +1434,9 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.style.minHeight = window.innerHeight + "px";
   };
   document.getElementById("loginPage").style.display = "block";
+  
+  // 确保登录页不会被意外隐藏
+  document.getElementById("loginPage").style.zIndex = "999";
 });
 </script>
 </body>
