@@ -13,16 +13,18 @@
 }
 body {
   background: #faf8fd;
-  padding: 8px; /* 全局内边距收窄，减少拥挤 */
+  padding: 8px;
   position: relative;
+  /* 禁止整体页面横向滚动 */
+  overflow-x: hidden;
 }
 
-/* 趣味装饰元素（手机端缩小，避免遮挡） */
+/* 趣味装饰元素 */
 .decoration-1 {
   position: fixed;
   top: 12px;
   left: 12px;
-  width: 32px; /* 缩小 */
+  width: 32px;
   height: 32px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e99da9'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") center no-repeat;
   background-size: contain;
@@ -34,7 +36,7 @@ body {
   position: fixed;
   bottom: 12px;
   right: 12px;
-  width: 24px; /* 缩小 */
+  width: 24px;
   height: 24px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237a947f'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E") center no-repeat;
   background-size: contain;
@@ -52,13 +54,13 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* 登录页（手机端收窄内边距，减少高度） */
+/* 登录页 */
 .login-page {
-  max-width: 360px; /* 收窄 */
-  margin: 40px auto; /* 减少上下边距 */
+  max-width: 360px;
+  margin: 40px auto;
   background: #fff;
   border-radius: 20px;
-  padding: 30px 24px; /* 收窄内边距 */
+  padding: 30px 24px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   animation: fadeIn 0.5s ease;
   position: relative;
@@ -69,7 +71,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .login-title {
-  font-size: 20px; /* 缩小 */
+  font-size: 20px;
   font-weight: bold;
   text-align: center;
   margin-bottom: 4px;
@@ -78,24 +80,24 @@ body {
 .login-sub {
   text-align: center;
   color: #999;
-  margin-bottom: 24px; /* 减少 */
-  font-size: 13px; /* 缩小 */
+  margin-bottom: 24px;
+  font-size: 13px;
 }
 .form-group {
-  margin-bottom: 16px; /* 减少 */
+  margin-bottom: 16px;
 }
 .form-group label {
   display: block;
-  font-size: 12px; /* 缩小 */
+  font-size: 12px;
   color: #666;
   margin-bottom: 4px;
 }
 .form-group input {
   width: 100%;
-  padding: 10px 12px; /* 收窄 */
+  padding: 10px 12px;
   border: 1px solid #e6e2df;
   border-radius: 10px;
-  font-size: 14px; /* 缩小 */
+  font-size: 14px;
   outline: none;
 }
 .form-group input:focus {
@@ -105,76 +107,96 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px; /* 缩小 */
+  font-size: 12px;
   color: #666;
-  margin-bottom: 20px; /* 减少 */
+  margin-bottom: 20px;
 }
 .login-btn {
   width: 100%;
-  padding: 11px; /* 收窄 */
+  padding: 11px;
   background: #e99da9;
   color: #fff;
   border: none;
   border-radius: 12px;
-  font-size: 14px; /* 缩小 */
+  font-size: 14px;
   font-weight: 500;
 }
 
-/* 主界面（手机端居中，减少最大宽度） */
+/* 主界面 - 核心：手机端单月占4/5屏幕 */
 .calendar-container {
   display: none;
   animation: pageIn 0.6s ease;
   position: relative;
   z-index: 2;
-  max-width: 900px; /* 收窄 */
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 0 4px; /* 减少左右内边距 */
+  padding: 0 4px;
 }
 @keyframes pageIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* 月份卡片（手机端减少间距和内边距） */
+/* 月份卡片 - 手机端占屏幕4/5宽度 */
 .month {
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 16px; /* 减少间距 */
+  margin: 0 auto 20px; /* 居中+底部间距 */
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  /* 核心：手机端4/5屏幕宽度，电脑端自适应 */
+  width: 95%;
+  max-width: 800px;
 }
+@media (max-width: 768px) {
+  .month {
+    width: 80%; /* 4/5屏幕宽度 */
+    margin: 0 auto 25px;
+  }
+}
+
 .month-title {
   text-align: center;
-  font-size: 15px; /* 缩小 */
+  font-size: 15px;
   font-weight: bold;
   color: #444;
-  padding: 12px 0; /* 收窄 */
+  padding: 12px 0;
   background: #fdfafc;
 }
+/* 月份操作栏：清空+保存按钮并排 */
 .month-head {
-  padding: 6px 12px; /* 收窄 */
+  padding: 8px 12px;
   background: #fdfafc;
   display: flex;
   justify-content: flex-end;
+  gap: 8px; /* 按钮间距 */
 }
-.btn-clear-month {
-  padding: 5px 8px; /* 收窄 */
-  font-size: 11px; /* 缩小 */
-  background: #fce4e8;
-  color: #c96f7d;
+.btn-clear-month, .btn-save-month {
+  padding: 6px 10px;
+  font-size: 11px;
   border: none;
   border-radius: 6px;
+  cursor: pointer;
+}
+.btn-clear-month {
+  background: #fce4e8;
+  color: #c96f7d;
+}
+.btn-save-month {
+  background: #e99da9;
+  color: #ffffff;
 }
 
 .week {
   display: grid;
   grid-template-columns: repeat(7,1fr);
   background: #fdfcfb;
-  padding: 6px 0; /* 收窄 */
+  padding: 6px 0;
 }
 .week > div {
   text-align: center;
-  font-size: 11px; /* 缩小 */
+  font-size: 11px;
   color: #999;
 }
 
@@ -182,35 +204,41 @@ body {
   display: grid;
   grid-template-columns: repeat(7,1fr);
   border-top: 1px solid #f0ebe7;
-  gap: 1px; /* 减少间距，避免拥挤 */
+  gap: 1px;
   background: #f0ebe7;
-  padding: 1px; /* 收窄 */
+  padding: 1px;
 }
 
-/* 电脑版：日期框固定 5:3 */
+/* 日期框样式 - 核心适配待办4-14字完整显示 */
 .day {
   width: 100%;
   aspect-ratio: 5/3;
-  padding: 6px 4px; /* 收窄内边距 */
+  padding: 8px 6px;
   background: #fff;
   position: relative;
   cursor: pointer;
-  border-radius: 6px; /* 缩小圆角 */
+  border-radius: 6px;
   overflow: hidden;
+  /* 确保最小尺寸 */
+  min-height: 60px;
 }
 
-/* 手机版：竖版自适应，全面瘦身优化 */
+/* 手机端日期框：增大高度+适配14字完整显示 */
 @media (max-width: 768px) {
   .day {
     aspect-ratio: auto;
-    min-height: 70px; /* 降低最小高度 */
+    min-height: 90px; /* 增大高度 */
     height: auto;
-    padding: 6px 4px 10px; /* 优化内边距 */
+    padding: 10px 8px;
   }
-  /* 手机版待办字体缩小，减少行数 */
+  /* 待办事项：适配14字完整显示 */
   .todo {
-    font-size: 13px !important; /* 缩小 */
-    -webkit-line-clamp: 1 !important; /* 改为1行，避免拥挤 */
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    -webkit-line-clamp: unset !important; /* 取消行数限制 */
+    height: auto !important;
+    top: 38px !important;
+    bottom: 8px !important;
   }
 }
 
@@ -222,52 +250,52 @@ body {
   color: #ffffff !important;
 }
 
-/* 国历：位置微调，保持原有字号 */
+/* 国历样式 */
 .num {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 6px;
+  left: 6px;
   font-size: 18px;
   font-weight: bold;
   color: #333;
 }
 
-/* 农历：缩小1号（9px）+ 上下竖排 + 右上角定位优化 */
+/* 农历样式：竖排+缩小 */
 .lunar {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 9px; /* 原10px缩小1号 */
+  top: 6px;
+  right: 6px;
+  font-size: 9px;
   color: #000000 !important;
-  writing-mode: vertical-lr; /* 上下书写，从左到右 */
-  text-orientation: upright; /* 字符直立，不旋转 */
-  line-height: 1.2; /* 紧凑行高 */
-  width: 12px; /* 固定宽度，避免换行 */
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  line-height: 1.2;
+  width: 12px;
   text-align: center;
 }
 
-/* 待办事项：与国历空隙优化，字体微调 */
+/* 待办事项：核心适配4-14字完整显示 */
 .todo {
   position: absolute;
-  top: 32px; /* 微调，减少拥挤 */
-  left: 4px;
-  right: 4px;
-  bottom: 4px;
-  font-size: 14px; /* 电脑版也缩小 */
-  line-height: 1.2; /* 紧凑行高 */
+  top: 32px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  font-size: 14px;
+  line-height: 1.3;
   color: #444;
   word-break: break-all;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3; /* 电脑端最多3行 */
   -webkit-box-orient: vertical;
 }
 
-/* 颜色面板（手机端缩小，减少间距） */
+/* 颜色面板 */
 .color-panel {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px; /* 减少间距 */
+  gap: 8px;
   margin-bottom: 14px;
 }
 .color-item {
@@ -277,7 +305,7 @@ body {
   gap: 3px;
 }
 .color-dot {
-  width: 32px; /* 缩小 */
+  width: 32px;
   height: 32px;
   border-radius: 50%;
   cursor: pointer;
@@ -287,12 +315,12 @@ body {
   border-color: #e99da9;
 }
 .color-name {
-  font-size: 10px; /* 缩小 */
+  font-size: 10px;
   color: #666;
   text-align: center;
 }
 
-/* 弹窗（手机端收窄内边距，缩小字体） */
+/* 弹窗 */
 .mask {
   position: fixed; inset:0; background:rgba(0,0,0,0.25);
   display: none;
@@ -304,9 +332,9 @@ body {
   transform: translate(-50%,-50%);
   background:#fff;
   border-radius: 16px;
-  padding: 20px; /* 收窄 */
+  padding: 20px;
   width: 88%;
-  max-width: 340px; /* 收窄 */
+  max-width: 340px;
   display: none;
   animation: popIn 0.3s ease;
   z-index: 100;
@@ -316,32 +344,32 @@ body {
   to { opacity:1; transform: translate(-50%,-50%) scale(1); }
 }
 .pop-title {
-  font-size: 16px; /* 缩小 */
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 14px;
   text-align: center;
 }
 .pop-input {
   width: 100%;
-  height: 70px; /* 缩短 */
+  height: 70px;
   border: 1px solid #e6e2df;
   border-radius: 10px;
-  padding: 8px 10px; /* 收窄 */
-  font-size: 14px; /* 缩小 */
+  padding: 8px 10px;
+  font-size: 14px;
   margin-bottom: 14px;
   resize: none;
   outline: none;
 }
 .pop-btns {
   display: flex;
-  gap: 8px; /* 减少间距 */
+  gap: 8px;
 }
 .pop-btns button {
   flex:1;
-  padding: 9px; /* 收窄 */
+  padding: 9px;
   border-radius: 10px;
   border:none;
-  font-size: 14px; /* 缩小 */
+  font-size: 14px;
 }
 .btn-clear {
   background: #f1eeeb;
@@ -358,14 +386,14 @@ body {
 
 .toast {
   position: fixed;
-  bottom: 40px; /* 上移，避免遮挡 */
+  bottom: 40px;
   left:50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.7);
   color:#fff;
-  padding: 7px 12px; /* 收窄 */
+  padding: 7px 12px;
   border-radius: 8px;
-  font-size: 12px; /* 缩小 */
+  font-size: 12px;
   display: none;
   z-index: 101;
 }
@@ -429,21 +457,25 @@ const COLORS = [
   { c: "#f7c8d0", name: "泡沫粉", isDark: false }
 ];
 
+// 拖动选中相关变量 - 新增滑动判定
 let isDragging = false;
 let selectedDays = [];
-let data = JSON.parse(localStorage.getItem("cal_data")) || {};
+let touchStartX = 0;
+let touchStartY = 0;
+const SWIPE_THRESHOLD = 10; // 滑动判定阈值（像素）
+
+let data = JSON.parse(localStorage.getItem("cal_data_vollure_rose_2026")) || {};
 let curMonth, curKeys;
-let syncInterval = null; // 同步定时器
+let syncInterval = null;
 
 // ==================== 工具 ====================
 function toast(txt) {
   const t = document.getElementById("toast");
   t.textContent = txt;
   t.style.display = "block";
-  setTimeout(() => t.style.display = "none", 1200); // 缩短提示时间
+  setTimeout(() => t.style.display = "none", 1200);
 }
 
-// 农历计算保持不变
 function getLunar(month, day) {
   const ld = [
     "", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
@@ -457,38 +489,38 @@ function getLunar(month, day) {
   return ld[idx] || "";
 }
 
-// ==================== 多设备实时同步核心 ====================
-// 统一存储键，确保所有设备读写同一数据
+// ==================== 多设备同步 ====================
 const STORAGE_KEY = "cal_data_vollure_rose_2026";
 
-// 初始化数据：从统一存储读取
 function initData() {
   const stored = localStorage.getItem(STORAGE_KEY);
   data = stored ? JSON.parse(stored) : {};
 }
 
-// 自动保存：写入统一存储
 function autoSave() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// 实时同步：定时拉取最新数据，更新页面
+// 新增：手动保存本月数据
+function saveMonthData(month) {
+  autoSave();
+  toast(`${month}月数据已手动保存`);
+}
+
 function syncData() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) return;
   const latestData = JSON.parse(stored);
-  // 对比数据是否有变化
   if (JSON.stringify(data) !== JSON.stringify(latestData)) {
     data = latestData;
-    render(); // 全量渲染，确保所有月份更新
+    render();
     toast("数据已同步");
   }
 }
 
-// 页面离开前强制保存
 window.addEventListener("beforeunload", () => {
   autoSave();
-  if (syncInterval) clearInterval(syncInterval); // 清理定时器
+  if (syncInterval) clearInterval(syncInterval);
 });
 
 // ==================== 登录记忆 ====================
@@ -523,10 +555,12 @@ function render() {
   for (let m = 1; m <= 12; m++) {
     const mEl = document.createElement("div");
     mEl.className = "month";
+    // 新增：保存按钮
     mEl.innerHTML = `
       <div class="month-title">Vollure Rose 2026年度行事历-${m}月份</div>
       <div class="month-head">
         <button class="btn-clear-month" onclick="clearMonth(${m})">清空本月</button>
+        <button class="btn-save-month" onclick="saveMonthData(${m})">保存本月</button>
       </div>
       <div class="week">
         <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
@@ -566,10 +600,11 @@ function renderMonth(m) {
   }
 }
 
-// ==================== 拖动选中功能 ====================
+// ==================== 拖动选中功能 - 新增滑动判定 ====================
 function bindDragSelect() {
   const allDays = document.querySelectorAll(".day:not(.empty)");
   
+  // 鼠标端：保持原有逻辑
   allDays.forEach(day => {
     day.addEventListener("mousedown", (e) => {
       e.preventDefault();
@@ -584,29 +619,63 @@ function bindDragSelect() {
     });
   });
 
+  // 移动端：新增滑动判定，区分滑动和拖动
   allDays.forEach(day => {
     day.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      isDragging = true;
-      selectedDays = [];
+      // 记录触摸起始位置
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isDragging = false; // 初始设为false，需判定不是滑动
+      
+      // 清除之前的选中状态
       document.querySelectorAll(".day.selected").forEach(d => d.classList.remove("selected"));
-      selectDay(day);
+      selectedDays = [];
     });
 
     day.addEventListener("touchmove", (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      // 计算滑动距离
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+      const diffX = Math.abs(touchX - touchStartX);
+      const diffY = Math.abs(touchY - touchStartY);
+      
+      // 如果滑动距离超过阈值，判定为滑动，不触发选中
+      if (diffX > SWIPE_THRESHOLD || diffY > SWIPE_THRESHOLD) {
+        isDragging = false;
+        return;
+      }
+      
+      // 否则判定为拖动选中
+      isDragging = true;
+      const target = document.elementFromPoint(touchX, touchY);
       if (target && target.classList.contains("day") && !target.classList.contains("empty")) {
         selectDay(target);
       }
     });
+
+    // 触摸结束：处理最终选中
+    day.addEventListener("touchend", (e) => {
+      if (!isDragging) return;
+      
+      // 如果只有一个选中，打开编辑弹窗
+      if (selectedDays.length === 1) {
+        curMonth = selectedDays[0].split("-")[0];
+        curKeys = selectedDays;
+        const item = data[selectedDays[0]] || { color: "#ffffff", todo: "" };
+        document.getElementById("todoInput").value = item.todo;
+        buildColors(item.color);
+        document.getElementById("mask").style.display = "block";
+        document.getElementById("pop").style.display = "block";
+      }
+      
+      // 重置状态
+      isDragging = false;
+      touchStartX = 0;
+      touchStartY = 0;
+    });
   });
 
-  document.addEventListener("mouseup", endDrag);
-  document.addEventListener("touchend", endDrag);
-
+  // 通用选中逻辑
   function selectDay(day) {
     if (!day.classList.contains("selected")) {
       day.classList.add("selected");
@@ -615,21 +684,7 @@ function bindDragSelect() {
     }
   }
 
-  function endDrag() {
-    if (isDragging && selectedDays.length > 0) {
-      isDragging = false;
-      curMonth = selectedDays[0].split("-")[0];
-      curKeys = selectedDays;
-      const firstKey = selectedDays[0];
-      const item = data[firstKey] || { color: "#ffffff", todo: "" };
-      document.getElementById("todoInput").value = item.todo;
-      buildColors(item.color);
-      document.getElementById("mask").style.display = "block";
-      document.getElementById("pop").style.display = "block";
-    }
-    isDragging = false;
-  }
-
+  // 单机/单点日期
   allDays.forEach(day => {
     day.addEventListener("click", () => {
       if (!isDragging) {
@@ -643,6 +698,21 @@ function bindDragSelect() {
         document.getElementById("pop").style.display = "block";
       }
     });
+  });
+
+  // 鼠标端结束拖动
+  document.addEventListener("mouseup", () => {
+    if (isDragging && selectedDays.length > 0) {
+      curMonth = selectedDays[0].split("-")[0];
+      curKeys = selectedDays;
+      const firstKey = selectedDays[0];
+      const item = data[firstKey] || { color: "#ffffff", todo: "" };
+      document.getElementById("todoInput").value = item.todo;
+      buildColors(item.color);
+      document.getElementById("mask").style.display = "block";
+      document.getElementById("pop").style.display = "block";
+    }
+    isDragging = false;
   });
 }
 
@@ -679,7 +749,7 @@ document.getElementById("ok").onclick = () => {
     data[k] = { color, todo };
   });
   
-  autoSave(); // 保存到统一存储
+  autoSave();
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
@@ -689,7 +759,7 @@ document.getElementById("ok").onclick = () => {
 document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空选中日期的内容？")) return;
   curKeys.forEach(k => delete data[k]);
-  autoSave(); // 保存到统一存储
+  autoSave();
   renderMonth(curMonth);
   bindDragSelect();
   closePop();
@@ -712,7 +782,7 @@ function clearMonth(m) {
   for (let k in data) {
     if (k.split("-")[0] == m) delete data[k];
   }
-  autoSave(); // 保存到统一存储
+  autoSave();
   renderMonth(m);
   bindDragSelect();
   toast(`${m}月已清空`);
@@ -724,11 +794,10 @@ document.getElementById("loginBtn").onclick = () => {
   const p = document.getElementById("pwd").value.trim();
   if (u === USER && p === PWD) {
     saveRemember();
-    initData(); // 初始化统一存储数据
+    initData();
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("main").style.display = "block";
     render();
-    // 启动实时同步：每2秒拉取一次最新数据
     syncInterval = setInterval(syncData, 2000);
   } else {
     toast("账号或密码错误");
@@ -738,9 +807,8 @@ document.getElementById("loginBtn").onclick = () => {
 // 页面加载
 window.onload = () => {
   loadRemember();
-  document.addEventListener("touchmove", (e) => {
-    if (isDragging) e.preventDefault();
-  }, { passive: false });
+  // 允许页面垂直滚动，不阻止默认行为
+  document.addEventListener("touchmove", (e) => {}, { passive: true });
 };
 </script>
 </body>
