@@ -208,11 +208,29 @@ body::after {
   padding: 20px;
   background: var(--bg-main);
 }
+/* 月份选择页功能按钮栏 */
+.month-select-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  padding: 0 10px;
+}
+.month-select-btn {
+  padding: 6px 10px;
+  font-size: 11px;
+  background: var(--btn-secondary);
+  color: var(--btn-primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 .month-select-title {
   font-size: 22px;
   font-weight: bold;
   text-align: center;
-  margin: 20px 0 30px;
+  margin: 0 0 30px;
   color: var(--title-color);
 }
 /* 12个月网格：2行6列，全屏自适应 */
@@ -351,14 +369,21 @@ body::after {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-color);
 }
-/* 月份操作栏 */
+/* 月份操作栏 - 新增功能按钮，返回按钮右侧依次排列 */
 .month-head {
   padding: 8px 12px;
   background: var(--card-bg);
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+/* 左侧功能按钮组：返回+批量设置+横竖屏+风格切换 */
+.month-func-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 /* 返回按钮 */
 .btn-back {
@@ -370,7 +395,27 @@ body::after {
   border-radius: 6px;
   cursor: pointer;
 }
-/* 清空+保存按钮容器 */
+/* 功能按钮样式统一 */
+.btn-batch, .btn-screen, .btn-style {
+  padding: 6px 10px;
+  font-size: 11px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-batch {
+  background: #e8f0e9;
+  color: #7a947f;
+}
+.btn-screen {
+  background: #e8eef2;
+  color: #7b9cb3;
+}
+.btn-style {
+  background: var(--btn-secondary);
+  color: var(--btn-primary);
+}
+/* 右侧操作按钮组：清空+保存 */
 .month-actions {
   display: flex;
   gap: 8px;
@@ -705,52 +750,6 @@ body::after {
   display: none;
   z-index: 101;
 }
-
-/* 新增：可拖动悬浮球 */
-.floating-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--btn-primary);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  cursor: move;
-  z-index: 90;
-  touch-action: none;
-}
-/* 悬浮球菜单 */
-.floating-menu {
-  position: fixed;
-  bottom: 90px;
-  right: 30px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  padding: 10px 0;
-  box-shadow: var(--shadow);
-  display: none;
-  flex-direction: column;
-  z-index: 89;
-}
-.floating-menu-item {
-  padding: 10px 20px;
-  font-size: 14px;
-  color: var(--title-color);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.floating-menu-item:hover {
-  background: var(--btn-secondary);
-}
-.floating-menu-item:active {
-  background: var(--btn-primary);
-  color: #fff;
-}
 </style>
 </head>
 <body id="appBody">
@@ -778,6 +777,11 @@ body::after {
 
 <!-- 月份选择页面 -->
 <div class="month-select-page" id="monthSelectPage">
+  <!-- 月份选择页功能按钮栏 -->
+  <div class="month-select-actions">
+    <button class="month-select-btn" id="selectScreenBtn">横竖屏切换</button>
+    <button class="month-select-btn" id="selectStyleBtn">风格切换</button>
+  </div>
   <div class="month-select-title">选择月份</div>
   <div class="month-grid" id="monthGrid"></div>
 </div>
@@ -825,15 +829,6 @@ body::after {
   <div class="style-item" data-style="luxury">白金轻奢</div>
   <div class="style-item" data-style="company">浅色白金（公司）</div>
   <div class="style-item" data-style="rose">玫瑰金+碎钻</div>
-</div>
-
-<!-- 可拖动悬浮球 -->
-<div class="floating-btn" id="floatingBtn">☰</div>
-<div class="floating-menu" id="floatingMenu">
-  <div class="floating-menu-item" id="menuBack">返回上一页</div>
-  <div class="floating-menu-item" id="menuBatch">批量设置待办</div>
-  <div class="floating-menu-item" id="menuScreen">横竖屏切换</div>
-  <div class="floating-menu-item" id="menuStyle">行事历风格切换</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1046,6 +1041,13 @@ function renderMonthSelectPage() {
     
     monthGrid.appendChild(monthCard);
   }
+  
+  // 绑定月份选择页的功能按钮
+  document.getElementById("selectScreenBtn").onclick = toggleScreenOrientation;
+  document.getElementById("selectStyleBtn").onclick = () => {
+    document.getElementById("styleMask").style.display = "block";
+    document.getElementById("stylePop").style.display = "block";
+  };
 }
 
 function showSingleMonth(month) {
@@ -1067,7 +1069,12 @@ function renderSingleMonth(month) {
   mEl.innerHTML = `
     <div class="month-title">Vollure Rose 2026年度行事历-${month}月份</div>
     <div class="month-head">
-      <button class="btn-back" onclick="backToMonthSelect()">返回</button>
+      <div class="month-func-group">
+        <button class="btn-back" onclick="backToMonthSelect()">返回</button>
+        <button class="btn-batch" onclick="openBatchPop()">批量设置</button>
+        <button class="btn-screen" onclick="toggleScreenOrientation()">横竖屏</button>
+        <button class="btn-style" onclick="openStylePop()">风格切换</button>
+      </div>
       <div class="month-actions">
         <button class="btn-clear-month" onclick="clearMonth(${month})">清空本月</button>
         <button class="btn-save-month" onclick="saveMonthData(${month})">保存本月</button>
@@ -1338,142 +1345,31 @@ function clearMonth(m) {
   toast(`${m}月已清空`);
 }
 
-// ==================== 悬浮球功能 ====================
-function initFloatingBtn() {
-  const floatingBtn = document.getElementById("floatingBtn");
-  const floatingMenu = document.getElementById("floatingMenu");
-  
-  // 悬浮球拖动
-  let isDraggingBtn = false;
-  let offsetX, offsetY;
-  
-  floatingBtn.addEventListener("mousedown", startDragBtn);
-  floatingBtn.addEventListener("touchstart", startDragBtn, { passive: false });
-  
-  function startDragBtn(e) {
-    e.preventDefault();
-    isDraggingBtn = true;
-    const clientX = e.type === "mousedown" ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type === "mousedown" ? e.clientY : e.touches[0].clientY;
-    const rect = floatingBtn.getBoundingClientRect();
-    offsetX = clientX - rect.left;
-    offsetY = clientY - rect.top;
-    
-    // 隐藏菜单
-    floatingMenu.style.display = "none";
-  }
-  
-  document.addEventListener("mousemove", dragBtn);
-  document.addEventListener("touchmove", dragBtn, { passive: false });
-  
-  function dragBtn(e) {
-    if (!isDraggingBtn) return;
-    e.preventDefault();
-    const clientX = e.type === "mousemove" ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type === "mousemove" ? e.clientY : e.touches[0].clientY;
-    
-    const x = clientX - offsetX;
-    const y = clientY - offsetY;
-    
-    // 限制在可视区域内
-    const maxX = window.innerWidth - floatingBtn.offsetWidth;
-    const maxY = window.innerHeight - floatingBtn.offsetHeight;
-    const finalX = Math.max(0, Math.min(x, maxX));
-    const finalY = Math.max(0, Math.min(y, maxY));
-    
-    floatingBtn.style.left = `${finalX}px`;
-    floatingBtn.style.top = `${finalY}px`;
-    floatingBtn.style.bottom = "auto";
-    floatingBtn.style.right = "auto";
-  }
-  
-  document.addEventListener("mouseup", stopDragBtn);
-  document.addEventListener("touchend", stopDragBtn);
-  
-  function stopDragBtn() {
-    isDraggingBtn = false;
-  }
-  
-  // 悬浮球点击切换菜单
-  floatingBtn.addEventListener("click", () => {
-    if (floatingMenu.style.display === "flex") {
-      floatingMenu.style.display = "none";
+// ==================== 横竖屏切换 ====================
+function toggleScreenOrientation() {
+  if (screen.orientation && screen.orientation.lock) {
+    if (screen.orientation.type.includes("portrait")) {
+      screen.orientation.lock("landscape").then(() => {
+        toast("已切换为横屏");
+      }).catch(() => {
+        toast("需要用户授权才能切换横竖屏");
+      });
     } else {
-      // 定位菜单到悬浮球左侧
-      const rect = floatingBtn.getBoundingClientRect();
-      floatingMenu.style.right = `${window.innerWidth - rect.left}px`;
-      floatingMenu.style.bottom = `${rect.top - floatingMenu.offsetHeight + rect.height/2}px`;
-      floatingMenu.style.display = "flex";
+      screen.orientation.lock("portrait").then(() => {
+        toast("已切换为竖屏");
+      }).catch(() => {
+        toast("需要用户授权才能切换横竖屏");
+      });
     }
-  });
-  
-  // 菜单点击事件
-  // 返回上一页
-  document.getElementById("menuBack").addEventListener("click", () => {
-    floatingMenu.style.display = "none";
-    if (document.getElementById("main").style.display === "block") {
-      backToMonthSelect();
-    } else if (document.getElementById("monthSelectPage").style.display === "block") {
-      document.getElementById("monthSelectPage").style.display = "none";
-      document.getElementById("loginPage").style.display = "block";
-    }
-  });
-  
-  // 批量设置待办
-  document.getElementById("menuBatch").addEventListener("click", () => {
-    floatingMenu.style.display = "none";
-    openBatchPop();
-  });
-  
-  // 横竖屏切换（模拟，实际由设备控制）
-  document.getElementById("menuScreen").addEventListener("click", () => {
-    floatingMenu.style.display = "none";
-    if (screen.orientation && screen.orientation.lock) {
-      if (screen.orientation.type.includes("portrait")) {
-        screen.orientation.lock("landscape").then(() => {
-          toast("已切换为横屏");
-        }).catch(() => {
-          toast("需要用户授权才能切换横竖屏");
-        });
-      } else {
-        screen.orientation.lock("portrait").then(() => {
-          toast("已切换为竖屏");
-        }).catch(() => {
-          toast("需要用户授权才能切换横竖屏");
-        });
-      }
-    } else {
-      toast("当前设备不支持手动切换横竖屏");
-    }
-  });
-  
-  // 风格切换
-  document.getElementById("menuStyle").addEventListener("click", () => {
-    floatingMenu.style.display = "none";
-    document.getElementById("styleMask").style.display = "block";
-    document.getElementById("stylePop").style.display = "block";
-  });
-  
-  // 点击空白处关闭菜单
-  document.addEventListener("click", (e) => {
-    if (!floatingBtn.contains(e.target) && !floatingMenu.contains(e.target)) {
-      floatingMenu.style.display = "none";
-    }
-  });
-  
-  // 风格选择
-  document.querySelectorAll(".style-item").forEach(item => {
-    item.addEventListener("click", () => {
-      setStyle(item.dataset.style);
-      document.getElementById("styleMask").style.display = "none";
-      document.getElementById("stylePop").style.display = "none";
-    });
-  });
-  
-  document.getElementById("styleMask").addEventListener("click", () => {
-    document.getElementById("styleMask").style.display = "none";
-    document.getElementById("stylePop").style.display = "none";
-  });
+  } else {
+    toast("当前设备不支持手动切换横竖屏");
+  }
+}
+
+// ==================== 风格弹窗 ====================
+function openStylePop() {
+  document.getElementById("styleMask").style.display = "block";
+  document.getElementById("stylePop").style.display = "block";
 }
 
 // ==================== 登录 ====================
@@ -1487,8 +1383,21 @@ document.getElementById("loginBtn").onclick = () => {
     document.getElementById("monthSelectPage").style.display = "block";
     renderMonthSelectPage();
     bindZoomEvent();
-    initFloatingBtn();
     syncInterval = setInterval(syncData, 2000);
+    
+    // 绑定风格选择事件
+    document.querySelectorAll(".style-item").forEach(item => {
+      item.addEventListener("click", () => {
+        setStyle(item.dataset.style);
+        document.getElementById("styleMask").style.display = "none";
+        document.getElementById("stylePop").style.display = "none";
+      });
+    });
+    
+    document.getElementById("styleMask").addEventListener("click", () => {
+      document.getElementById("styleMask").style.display = "none";
+      document.getElementById("stylePop").style.display = "none";
+    });
   } else {
     toast("账号或密码错误");
   }
