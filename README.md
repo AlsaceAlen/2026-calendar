@@ -191,7 +191,7 @@ body::after {
   100% { transform: rotate(360deg); }
 }
 
-/* 登录页 - 全屏自适应 */
+/* 登录页 - 修复遮挡问题：默认隐藏，登录失败时才显示 */
 .login-page {
   max-width: 380px;
   width: 90%;
@@ -206,7 +206,7 @@ body::after {
   box-shadow: var(--shadow);
   animation: fadeIn 0.5s ease;
   z-index: 2;
-  display: block !important; /* 确保移动端登录页默认显示 */
+  display: none !important; /* 默认隐藏，解决遮挡问题 */
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
@@ -269,16 +269,16 @@ body::after {
 
 /* 月份选择页面 - 全屏自适应 */
 .month-select-page {
-  display: none;
+  display: block; /* 默认显示，解决遮挡问题 */
   animation: fadeIn 0.5s ease;
   position: relative;
-  z-index: 2;
+  z-index: 3; /* 提升层级，确保不被遮挡 */
   width: 100%;
   height: 100vh;
   padding: 20px;
   background: var(--bg-main);
 }
-/* 月份选择页功能按钮栏 */
+/* 月份选择页功能按钮栏 - 移除横竖屏按钮 */
 .month-select-actions {
   display: flex;
   justify-content: center;
@@ -383,7 +383,7 @@ body::after {
   display: none;
   animation: pageIn 0.6s ease;
   position: relative;
-  z-index: 2;
+  z-index: 4; /* 最高层级，确保不被遮挡 */
   width: 100%;
   height: 100vh;
   padding: 10px;
@@ -806,6 +806,21 @@ body::after {
   background: rgba(255,255,255,0.2);
   color: #fff;
 }
+
+/* 登录入口按钮 - 新增：替代默认显示的登录页 */
+.login-entrance {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  padding: 8px 12px;
+  background: var(--btn-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body id="appBody">
@@ -815,10 +830,13 @@ body::after {
   <div>加载中...</div>
 </div>
 
+<!-- 新增：登录入口按钮 -->
+<button class="login-entrance" id="loginEntrance">登录/切换账号</button>
+
 <div class="decoration-1"></div>
 <div class="decoration-2"></div>
 
-<!-- 登录页 -->
+<!-- 登录页 - 修复遮挡：默认隐藏 -->
 <div class="login-page" id="loginPage">
   <div class="login-title">Vollure Rose</div>
   <div class="login-sub">2026年度行事历</div>
@@ -837,7 +855,7 @@ body::after {
   <button class="login-btn" id="loginBtn">登录</button>
 </div>
 
-<!-- 月份选择页面 -->
+<!-- 月份选择页面 - 默认显示 -->
 <div class="month-select-page" id="monthSelectPage">
   <!-- 月份选择页功能按钮栏 - 移除横竖屏按钮 -->
   <div class="month-select-actions">
@@ -896,9 +914,14 @@ body::after {
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== 云存储配置（跨端同步：使用固定key存储，确保多端读取同一数据） ====================
-const CLOUD_API_URL = "https://mock-api.example.com/calendar";
+// ==================== 云端存储配置（跨设备/跨浏览器互通） ====================
+// 替换为你的JSONBIN信息
+const JSONBIN_API_KEY = "$2a$10$1Uf6iy/jho4fH8muXPGGIO3ZmYnjaeZ7aF9TUo9/BXZxcw8GIDcdS";
+const JSONBIN_BIN_ID = "69a82c57ae596e708f5e7fe6";
+const BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
 let USER_TOKEN = "";
+let IS_LOGGED_IN = false; // 登录状态标记
 
 // ==================== 配置 ====================
 const YEAR = 2026;
@@ -989,61 +1012,91 @@ function getLunar(month, day) {
   return ld[idx] || "";
 }
 
-// ==================== 跨端同步修复：使用固定key存储，确保电脑/移动端读取同一数据 ====================
+// ==================== 云端存储核心逻辑（跨设备/跨浏览器互通） ====================
+// 从JSONBIN云端加载数据
 async function loadDataFromCloud() {
   try {
     showLoading();
-    await new Promise(r => setTimeout(r, 300));
     
-    // 跨端同步核心：使用固定key，不随用户/时间变化
-    const localData = localStorage.getItem("vollure_rose_2026_calendar_data");
-    const localStyle = localStorage.getItem("vollure_rose_2026_calendar_style");
+    const response = await fetch(BASE_URL, {
+      method: "GET",
+      headers: {
+        "X-Master-Key": JSONBIN_API_KEY,
+        "Content-Type": "application/json"
+      }
+    });
     
-    // 兼容旧数据，迁移到新key
-    const oldData = localStorage.getItem("cal_data_cloud");
-    const oldStyle = localStorage.getItem("cal_style_cloud");
-    if (oldData && !localData) {
-      localStorage.setItem("vollure_rose_2026_calendar_data", oldData);
-      localStorage.removeItem("cal_data_cloud");
-    }
-    if (oldStyle && !localStyle) {
-      localStorage.setItem("vollure_rose_2026_calendar_style", oldStyle);
-      localStorage.removeItem("cal_style_cloud");
-    }
+    if (!response.ok) throw new Error("云端数据加载失败");
     
-    data = localData ? JSON.parse(localData) : {};
-    styleData = localStyle ? JSON.parse(localStyle) : { style: "system", nightMode: false };
+    const result = await response.json();
+    const cloudData = result.record || {};
+    
+    // 分离业务数据和样式数据
+    data = cloudData.calendar || {};
+    styleData = cloudData.style || { style: "system", nightMode: false };
     
     hideLoading();
-    toast("云端数据加载成功（跨端同步）");
+    toast("云端数据加载成功（跨设备同步）");
     return true;
   } catch (e) {
-    console.error("加载数据失败:", e);
+    console.error("加载云端数据失败:", e);
     hideLoading();
-    toast("加载成功(本地模式)");
+    // 加载失败时使用本地备份
+    const local = localStorage.getItem("cal_backup");
+    data = local ? JSON.parse(local).calendar || {} : {};
+    styleData = local ? JSON.parse(local).style || { style: "system", nightMode: false } : { style: "system", nightMode: false };
+    toast("使用本地备份数据");
     return true;
   }
 }
 
+// 保存数据到JSONBIN云端
 async function saveDataToCloud() {
+  if (!IS_LOGGED_IN) {
+    toast("请先登录后再保存");
+    return false;
+  }
+  
   try {
-    // 跨端同步核心：保存到固定key
-    localStorage.setItem("vollure_rose_2026_calendar_data", JSON.stringify(data));
-    localStorage.setItem("vollure_rose_2026_calendar_style", JSON.stringify(styleData));
-    await new Promise(r => setTimeout(r, 200));
+    const saveData = {
+      calendar: data,
+      style: styleData,
+      updateTime: new Date().toISOString()
+    };
+    
+    // 先保存到本地备份
+    localStorage.setItem("cal_backup", JSON.stringify(saveData));
+    
+    // 再同步到云端
+    const response = await fetch(BASE_URL, {
+      method: "PUT",
+      headers: {
+        "X-Master-Key": JSONBIN_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(saveData)
+    });
+    
+    if (!response.ok) throw new Error("云端保存失败");
+    
+    toast("数据已同步到云端");
     return true;
   } catch (e) {
-    console.error("保存数据失败:", e);
-    toast("保存成功");
+    console.error("保存云端数据失败:", e);
+    // 云端保存失败时仅保存本地
+    localStorage.setItem("cal_backup", JSON.stringify({
+      calendar: data,
+      style: styleData
+    }));
+    toast("已保存到本地（云端同步失败）");
     return true;
   }
 }
 
+// 自动同步
 async function syncCloudData() {
-  try {
+  if (IS_LOGGED_IN) {
     await saveDataToCloud();
-  } catch (e) {
-    console.error("同步数据失败:", e);
   }
 }
 
@@ -1056,7 +1109,7 @@ async function initData() {
   toggleNightMode(isNightMode, false);
   
   if (syncInterval) clearInterval(syncInterval);
-  syncInterval = setInterval(syncCloudData, 5000); // 缩短同步间隔，确保及时保存
+  syncInterval = setInterval(syncCloudData, 5000); // 5秒自动同步
 }
 
 function autoSave() {
@@ -1068,7 +1121,7 @@ function saveStyle() {
 }
 function saveMonthData(month) {
   autoSave();
-  toast(`${month}月数据已保存到云端`);
+  toast(`${month}月数据已同步到云端`);
 }
 
 window.addEventListener("beforeunload", async () => {
@@ -1125,7 +1178,7 @@ function toggleNightMode(forceMode, showToast = true) {
   if (showToast) toast(isNightMode ? "已开启夜间模式" : "已关闭夜间模式");
 }
 
-// ==================== 月份选择（修复跳转登录问题） ====================
+// ==================== 月份选择 ====================
 function renderMonthSelectPage() {
   const monthGrid = document.getElementById("monthGrid");
   monthGrid.innerHTML = "";
@@ -1149,14 +1202,13 @@ function renderMonthSelectPage() {
       <div class="month-thumb-title">${m}月份</div>
       <div class="month-thumb-cal">${thumb}</div>
     `;
-    // 修复跳转登录：直接绑定点击事件，避免事件丢失
+    // 绑定点击事件
     card.addEventListener("click", function() {
       showSingleMonth(parseInt(this.dataset.month));
     });
     monthGrid.appendChild(card);
   }
 
-  // 移除横竖屏按钮绑定
   document.getElementById("selectStyleBtn").onclick = () => {
     document.getElementById("styleMask").style.display = "block";
     document.getElementById("stylePop").style.display = "block";
@@ -1231,7 +1283,6 @@ function backToMonthSelect() {
 function setZoom(percent) {
   currentZoom = percent;
   const scale = percent / 100;
-  // 移除横竖屏相关的transform，只保留缩放
   document.getElementById("main").style.transform = `scale(${scale})`;
   document.getElementById("main").style.position = "relative";
   document.getElementById("main").style.top = "auto";
@@ -1335,15 +1386,15 @@ document.getElementById("ok").onclick = () => {
   if (!c) return;
   const t = document.getElementById("todoInput").value.trim();
   curKeys.forEach(k => data[k] = { color: c, todo: t });
-  autoSave(); // 立即保存，确保跨端同步
+  autoSave(); // 立即同步到云端
   renderSingleMonth(curMonth);
   closePop();
-  toast(`已保存到云端（跨端同步）`);
+  toast(`已保存（跨设备同步）`);
 };
 document.getElementById("clearBtn").onclick = () => {
   if (!confirm("确定清空？")) return;
   curKeys.forEach(k => delete data[k]);
-  autoSave(); // 立即保存
+  autoSave(); // 立即同步到云端
   renderSingleMonth(curMonth);
   closePop();
   toast("已清空");
@@ -1363,7 +1414,7 @@ function clearMonth(m) {
   for (const k in data) {
     if (k.split("-")[0] == m) delete data[k];
   }
-  autoSave(); // 立即保存
+  autoSave(); // 立即同步到云端
   renderSingleMonth(m);
   toast(`${m}月已清空`);
 }
@@ -1373,7 +1424,16 @@ function openStylePop() {
   document.getElementById("stylePop").style.display = "block";
 }
 
-// ==================== 登录 ====================
+// ==================== 登录逻辑（修复遮挡问题） ====================
+// 登录入口按钮点击事件
+document.getElementById("loginEntrance").addEventListener("click", function() {
+  const loginPage = document.getElementById("loginPage");
+  loginPage.style.display = loginPage.style.display === "block" ? "none" : "block";
+  // 加载记住的密码
+  loadRemember();
+});
+
+// 登录按钮点击事件
 document.getElementById("loginBtn").onclick = async () => {
   const u = document.getElementById("user").value.trim();
   const p = document.getElementById("pwd").value.trim();
@@ -1381,12 +1441,18 @@ document.getElementById("loginBtn").onclick = async () => {
     toast("账号或密码错误");
     return;
   }
+  
+  IS_LOGGED_IN = true;
   USER_TOKEN = u + "_" + Date.now();
   saveRemember();
-  await initData();
+  await initData(); // 登录后加载云端数据
   
+  // 隐藏登录页
   document.getElementById("loginPage").style.display = "none";
-  document.getElementById("monthSelectPage").style.display = "block";
+  // 更新登录按钮文本
+  document.getElementById("loginEntrance").textContent = "已登录：rose001";
+  
+  // 初始化界面
   renderMonthSelectPage();
   bindZoomEvent();
   
@@ -1401,6 +1467,8 @@ document.getElementById("loginBtn").onclick = async () => {
     document.getElementById("styleMask").style.display = "none";
     document.getElementById("stylePop").style.display = "none";
   };
+  
+  toast("登录成功，数据已同步");
 };
 
 function loadRemember() {
@@ -1428,15 +1496,26 @@ function saveRemember() {
 
 // ==================== 页面加载 ====================
 window.addEventListener("DOMContentLoaded", () => {
-  loadRemember();
+  // 初始化界面（无需登录即可查看）
+  renderMonthSelectPage();
+  bindZoomEvent();
+  
+  // 尝试自动登录（如果有记住的密码）
+  const d = localStorage.getItem("cal_remember");
+  if (d) {
+    const { user, pwd, exp } = JSON.parse(d);
+    if (Date.now() <= exp && user === USER && pwd === PWD) {
+      IS_LOGGED_IN = true;
+      initData();
+      document.getElementById("loginEntrance").textContent = "已登录：rose001";
+      toast("自动登录成功");
+    }
+  }
+  
   document.body.style.minHeight = window.innerHeight + "px";
   window.onresize = () => {
     document.body.style.minHeight = window.innerHeight + "px";
   };
-  document.getElementById("loginPage").style.display = "block";
-  
-  // 确保登录页不会被意外隐藏
-  document.getElementById("loginPage").style.zIndex = "999";
 });
 </script>
 </body>
